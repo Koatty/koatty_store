@@ -2,15 +2,42 @@
  * @Author: richen
  * @Date: 2020-11-30 15:56:08
  * @LastEditors: linyyyang<linyyyang@tencent.com>
- * @LastEditTime: 2020-11-30 17:36:28
+ * @LastEditTime: 2020-12-01 19:06:17
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
 import helper from "koatty_lib";
 import { DefaultLogger as logger } from "koatty_logger";
-import { StoreOptions } from "./index";
 import IORedis from "ioredis";
 import genericPool from "generic-pool";
+
+/**
+ *
+ *
+ * @export
+ * @interface RedisClient
+ * @extends {IORedis.Redis}
+ */
+// tslint:disable-next-line: no-empty-interface
+export interface RedisClient extends IORedis.Redis { }
+
+/**
+ *
+ *
+ * @export
+ * @interface StoreOptions
+ */
+export interface StoreOptions {
+    // type: StoreType;
+    key_prefix: string;
+    host: string;
+    port: number;
+    auth?: string;
+    db?: number;
+    timeout?: number;
+    pool_size?: number;
+    conn_timeout?: number;
+}
 
 /**
  *
@@ -28,7 +55,6 @@ interface RedisStoreOptions {
     connectTimeout: number;
     maxLoadingRetryTime: number;
 }
-
 
 /**
  *
@@ -213,7 +239,7 @@ export class RedisStore {
      * @param timeout
      * @returns {Promise}
      */
-    set(name: string, value: string | number | null, timeout = this.options.timeout) {
+    set(name: string, value: string | number, timeout = this.options.timeout) {
         const setP = [this.wrap('set', [this.options.keyPrefix + name, value])];
         if (typeof timeout === 'number') {
             setP.push(this.wrap('expire', [this.options.keyPrefix + name, timeout]));
@@ -331,7 +357,7 @@ export class RedisStore {
      * @param value
      * @param timeout
      */
-    hset(name: string, key: string, value: string | number | null, timeout = this.options.timeout) {
+    hset(name: string, key: string, value: string | number, timeout = this.options.timeout) {
         const setP = [this.wrap('hset', [this.options.keyPrefix + name, key, value])];
         if (typeof timeout === 'number') {
             setP.push(this.wrap('expire', [this.options.keyPrefix + name, timeout]));
@@ -431,7 +457,7 @@ export class RedisStore {
      * @param value
      * @returns {*}
      */
-    rpush(name: string, value: string | number | null) {
+    rpush(name: string, value: string | number) {
         return this.wrap('rpush', [this.options.keyPrefix + name, value]);
     }
 
@@ -462,7 +488,7 @@ export class RedisStore {
      * @param timeout
      * @returns {*}
      */
-    sadd(name: string, value: string | number | null, timeout = this.options.timeout) {
+    sadd(name: string, value: string | number, timeout = this.options.timeout) {
         const setP = [this.wrap('sadd', [this.options.keyPrefix + name, value])];
         if (typeof timeout === 'number') {
             setP.push(this.wrap('expire', [this.options.keyPrefix + name, timeout]));
