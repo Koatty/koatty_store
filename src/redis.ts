@@ -2,11 +2,11 @@
  * @Author: richen
  * @Date: 2020-11-30 15:56:08
  * @LastEditors: linyyyang<linyyyang@tencent.com>
- * @LastEditTime: 2020-12-01 19:06:17
+ * @LastEditTime: 2020-12-02 10:09:58
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
-import helper from "koatty_lib";
+import * as helper from "koatty_lib";
 import { DefaultLogger as logger } from "koatty_logger";
 import IORedis from "ioredis";
 import genericPool from "generic-pool";
