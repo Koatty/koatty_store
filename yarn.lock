@@ -515,9 +515,9 @@ kind-of@^6.0.3:
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
 
 koatty_lib@^1.x.x:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/koatty_lib/-/koatty_lib-1.2.0.tgz#abb8095ebc44621a508ee58c71b7a08d443b02d3"
-  integrity sha512-BQH3DOYgJ3soEMgd5Pco3pdk0d7toBEG58VmZ17VfRRaGFFySK4ipqV+3js6qj1xOUJDvw0CSFdjXTD1dPrk2Q==
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/koatty_lib/-/koatty_lib-1.2.2.tgz#b3adbaeddf9ceab6fc7ea9c1ef29850bacc60b53"
+  integrity sha512-kdg9ci4UoO3qVKr+x+KdVcJbb/bF+NbltU4Exsl4dqlfvfSghq5JNvSNAMy7IvF2N/dSayNjW9c4dFIGwGM7Jg==
   dependencies:
     "@types/lodash" "^4.x.x"
     co "^4.6.0"

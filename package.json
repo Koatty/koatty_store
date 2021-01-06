@@ -1,6 +1,6 @@
 {
     "name": "koatty_store",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "description": "Cache store for koatty.",
     "scripts": {
         "build": "del-cli --force dist && tsc",
@@ -10,7 +10,7 @@
     "main": "./dist/index.js",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/thinkkoa/koatty_store.git"
+        "url": "git+https://github.com/koatty/koatty_store.git"
     },
     "keywords": [
         "web",
@@ -21,7 +21,7 @@
         "restful",
         "agile",
         "koatty_store",
-        "thinkkoa"
+        "koatty"
     ],
     "engines": {
         "node": ">10.0.0"
@@ -32,9 +32,9 @@
     },
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/thinkkoa/koatty_store/issues"
+        "url": "https://github.com/koatty/koatty_store/issues"
     },
-    "homepage": "https://github.com/thinkkoa/koatty_store",
+    "homepage": "https://github.com/koatty/koatty_store",
     "maintainers": [
         {
             "name": "richenlin",
