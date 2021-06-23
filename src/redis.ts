@@ -1,8 +1,8 @@
 /*
  * @Author: richen
  * @Date: 2020-11-30 15:56:08
- * @LastEditors: linyyyang<linyyyang@tencent.com>
- * @LastEditTime: 2020-12-02 10:09:58
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-06-23 12:02:06
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
@@ -10,6 +10,7 @@ import * as helper from "koatty_lib";
 import { DefaultLogger as logger } from "koatty_logger";
 import IORedis from "ioredis";
 import genericPool from "generic-pool";
+import { StoreOptions } from "./index";
 
 /**
  *
@@ -18,42 +19,33 @@ import genericPool from "generic-pool";
  * @interface RedisClient
  * @extends {IORedis.Redis}
  */
-// tslint:disable-next-line: no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RedisClient extends IORedis.Redis { }
-
-/**
- *
- *
- * @export
- * @interface StoreOptions
- */
-export interface StoreOptions {
-    // type: StoreType;
-    key_prefix: string;
-    host: string;
-    port: number;
-    auth?: string;
-    db?: number;
-    timeout?: number;
-    pool_size?: number;
-    conn_timeout?: number;
-}
 
 /**
  *
  *
  * @interface RedisStoreOptions
  */
-interface RedisStoreOptions {
-    host: string;
-    port: number;
-    auth_pass: string;
+export interface RedisStoreOptions {
+    host?: string | Array<string>;
+    port?: number | Array<number>;
+    username?: string;
+    password?: string;
     db: number;
     keyPrefix: string;
     timeout: number;
-    poolSize: number;
+    poolSize?: number;
     connectTimeout: number;
-    maxLoadingRetryTime: number;
+
+    // sentinel
+    name?: string;
+    sentinelUsername?: string;
+    sentinelPassword?: string;
+    sentinels?: Array<{ host: string; port: number }>;
+
+    // cluster
+    clusters?: Array<{ host: string; port: number }>;
 }
 
 /**
@@ -64,8 +56,8 @@ interface RedisStoreOptions {
  */
 export class RedisStore {
     private options: RedisStoreOptions;
-    pool: genericPool.Pool<IORedis.Redis>;
-    client: IORedis.Redis;
+    private pool: genericPool.Pool<IORedis.Redis | IORedis.Cluster>;
+    public client: IORedis.Redis | IORedis.Cluster;
 
     /**
      * Creates an instance of RedisStore.
@@ -73,52 +65,84 @@ export class RedisStore {
      * @memberof RedisStore
      */
     constructor(options: StoreOptions) {
-        this.options = {
-            host: options.host || '127.0.0.1',
-            port: options.port || 6379,
-            auth_pass: options.auth || '',
-            db: options.db || 0,
-            keyPrefix: options.key_prefix || '',
-            timeout: options.timeout,
-            poolSize: options.pool_size || 10,
-            connectTimeout: options.conn_timeout || 500,
-            maxLoadingRetryTime: 2000,
-        };
-
+        this.options = this.parseOpt(options);
         this.pool = null;
         this.client = null;
+    }
+
+    // parseOpt
+    private parseOpt(options: StoreOptions): RedisStoreOptions {
+        const opt: RedisStoreOptions = {
+            host: options.host || '127.0.0.1',
+            port: options.port || 3306,
+            username: options.username || "",
+            password: options.password || "",
+            db: options.db || 0,
+            keyPrefix: options.key_prefix || '',
+            timeout: options.timeout || 500,
+            poolSize: options.pool_size || 10,
+            connectTimeout: options.conn_timeout || 500,
+        };
+
+        if (helper.isArray(options.host)) {
+            const hosts: Array<{ host: string; port: number }> = [];
+            for (let i = 0; i < options.host.length; i++) {
+                const h = options.host[i];
+                if (!helper.isEmpty(options.host[i])) {
+                    let p: number;
+                    if (helper.isArray(options.port)) {
+                        p = options.port[i];
+                    } else {
+                        p = options.port || 6379;
+                    }
+                    hosts.push({
+                        host: h,
+                        port: helper.toNumber(p),
+                    })
+                }
+            }
+            // sentinel
+            if (!helper.isEmpty(options.name)) {
+                opt.host = "";
+                opt.port = null;
+                opt.sentinels = [...hosts];
+                opt.sentinelUsername = options.username;
+                opt.sentinelPassword = options.password;
+            } else {
+                // cluster
+                opt.host = "";
+                opt.port = null;
+                opt.clusters = [...hosts];
+            }
+        }
+        return opt;
     }
 
     /**
      * create connection by native
      *
      * @param {number} [connNum=0]
-     * @returns {*}  {Promise<IORedis.Redis>}
+     * @returns {*}  {Promise<IORedis.Redis | IORedis.Cluster>}
      * @memberof RedisStore
      */
-    async connect(connNum = 0): Promise<IORedis.Redis> {
+    private async connect(connNum = 0): Promise<IORedis.Redis | IORedis.Cluster> {
         if (this.client && this.client.status === 'ready') {
             return this.client;
         }
 
         const defer = helper.getDefer();
-        const connection = new IORedis(this.options);
-
-        connection.on("error", (err) => {
-            if (connNum < 3) {
-                connNum++;
-                defer.resolve(this.connect(connNum));
-            } else {
-                this.close(connection);
-                defer.reject(err);
-            }
-        });
+        let connection: IORedis.Redis | IORedis.Cluster;
+        if (!helper.isEmpty(this.options.clusters)) {
+            connection = new IORedis.Cluster([...this.options.clusters], { redisOptions: <{ host: string }>this.options })
+        } else {
+            connection = new IORedis(<{ host: string }>this.options)
+        }
         connection.on('end', () => {
             if (connNum < 3) {
                 connNum++;
                 defer.resolve(this.connect(connNum));
             } else {
-                this.close(connection);
+                this.close();
                 defer.reject('redis connection end');
             }
         });
@@ -142,10 +166,10 @@ export class RedisStore {
                 create: () => {
                     return this.connect();
                 },
-                destroy: (client: IORedis.Redis) => {
-                    return this.close(client, true);
+                destroy: () => {
+                    return this.close();
                 },
-                validate: (resource: IORedis.Redis) => {
+                validate: (resource: IORedis.Redis | IORedis.Cluster) => {
                     return Promise.resolve(resource.status === 'ready');
                 }
             };
@@ -167,18 +191,14 @@ export class RedisStore {
     /**
      * close connection
      *
-     * @param {IORedis.Redis} client
-     * @param {boolean} [isPool=false]
      * @returns {*}  
      * @memberof RedisStore
      */
-    async close(client: IORedis.Redis, isPool = false) {
-        if (isPool) {
-            this.pool.destroy(client);
-            this.pool = null;
-        }
-        client.disconnect();
+    async close() {
+        this.client.disconnect();
         this.client = null;
+        this.pool.destroy(this.client);
+        this.pool = null;
         return;
     }
 
@@ -200,26 +220,6 @@ export class RedisStore {
             if (this.pool.isBorrowedResource(conn)) {
                 this.pool.release(conn);
             }
-            throw err;
-        }
-    }
-
-    /**
-     * defined scripting commands 
-     *
-     * @param {string} name
-     * @param {*} data
-     * @returns {*}  
-     * @memberof RedisStore
-     */
-    async command(name: string, data: any) {
-        let cls;
-        try {
-            cls = await this.connect();
-            await cls.defineCommand(name, data);
-            return cls;
-        } catch (err) {
-            this.close(cls);
             throw err;
         }
     }
