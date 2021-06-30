@@ -2,12 +2,13 @@
  * @Author: richen
  * @Date: 2020-11-30 11:48:12
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-06-23 11:47:23
+ * @LastEditTime: 2021-06-30 15:31:57
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
 import * as helper from "koatty_lib";
-import { RedisStore, RedisStoreOptions } from "./redis";
+import { MemoryStore } from "./memory";
+import { RedisStore } from "./redis";
 export { RedisStore, RedisClient, RedisStoreOptions } from "./redis";
 
 
@@ -18,6 +19,7 @@ export { RedisStore, RedisClient, RedisStoreOptions } from "./redis";
  * @interface StoreOptions
  */
 export interface StoreOptions {
+    type: string;
     key_prefix: string;
     host: string | Array<string>;
     port?: number | Array<number>;
@@ -30,6 +32,24 @@ export interface StoreOptions {
     conn_timeout?: number;
 }
 
+
+/**
+ * CacheStore interface
+ *
+ * @export
+ * @interface CacheStore
+ */
+export interface CacheStore {
+    client: any;
+
+    getConnection(): any;
+    close(): Promise<void>;
+    release(conn: any): Promise<void>;
+    get(name: string): Promise<any>;
+    set(name: string, value: string | number, timeout?: number): Promise<any[]>;
+    defineCommand(name: string, scripts: any): any;
+}
+
 /**
  *
  *
@@ -37,7 +57,7 @@ export interface StoreOptions {
  * @class Store
  */
 export class Store {
-    private static instance: RedisStore;
+    private static instance: MemoryStore | RedisStore;
 
     /**
      * 
@@ -52,6 +72,7 @@ export class Store {
         }
         options = {
             ...{
+                type: 'memory', // memory | redis
                 host: '127.0.0.1',
                 port: 3306,
                 key_prefix: 'Koatty',
@@ -60,7 +81,16 @@ export class Store {
                 conn_timeout: 500,
             }, ...options
         };
-        this.instance = new RedisStore(options);
+        switch (options.type) {
+            case "redis":
+                this.instance = new RedisStore(options);
+                break;
+            case "memory":
+            default:
+                this.instance = new MemoryStore(options);
+                break;
+        }
+
         return this.instance;
     }
 

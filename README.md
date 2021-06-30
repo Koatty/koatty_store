@@ -1,2 +1,2 @@
 # koatty_store
-Cache store for koatty.
+Cache store (memory or reids) for koatty.
