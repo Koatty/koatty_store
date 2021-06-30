@@ -2,15 +2,14 @@
  * @Author: richen
  * @Date: 2020-11-30 11:48:12
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-06-30 15:31:57
+ * @LastEditTime: 2021-06-30 17:00:57
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
-import * as helper from "koatty_lib";
 import { MemoryStore } from "./memory";
 import { RedisStore } from "./redis";
-export { RedisStore, RedisClient, RedisStoreOptions } from "./redis";
-
+export { RedisStore, RedisStoreOptions } from "./redis";
+export { MemoryStore, MemoryStoreOptions } from "./memory";
 
 /**
  *
@@ -46,8 +45,9 @@ export interface CacheStore {
     close(): Promise<void>;
     release(conn: any): Promise<void>;
     get(name: string): Promise<any>;
-    set(name: string, value: string | number, timeout?: number): Promise<any[]>;
+    set(name: string, value: string | number, timeout?: number): Promise<any>;
     defineCommand(name: string, scripts: any): any;
+    getCompare(name: string, value: string | number): Promise<any>;
 }
 
 /**
