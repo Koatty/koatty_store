@@ -3,7 +3,7 @@ import { CacheStore, StoreOptions } from ".";
 const MemoryCache = require('@outofsync/memory-cache');
 
 /**
- *
+ * MemoryStore Options
  *
  * @export
  * @interface MemoryStoreOptions
@@ -46,6 +46,7 @@ export class MemoryStore implements CacheStore {
         }
         if (!this.client) {
             this.client = this.pool.createClient();
+            this.client.status = "ready";
         }
 
         return this.client;
@@ -90,6 +91,26 @@ export class MemoryStore implements CacheStore {
             enumerable: true,
         });
         return client;
+    }
+
+    /**
+     * 
+     *
+     * @param {string} name
+     * @param {(string | number)} value
+     * @returns {*}  {Promise<any>}
+     * @memberof MemoryStore
+     */
+    async getCompare(name: string, value: string | number): Promise<any> {
+        const client = this.getConnection();
+        const val = client.get(name);
+        if (!val) {
+            return 0;
+        } else if (val == value) {
+            return client.del(name);
+        } else {
+            return -1;
+        }
     }
 
     /**
