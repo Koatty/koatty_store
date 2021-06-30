@@ -2,7 +2,7 @@
  * @Author: richen
  * @Date: 2020-11-30 15:56:08
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-06-23 12:02:06
+ * @LastEditTime: 2021-06-30 15:21:06
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
@@ -10,7 +10,7 @@ import * as helper from "koatty_lib";
 import { DefaultLogger as logger } from "koatty_logger";
 import IORedis from "ioredis";
 import genericPool from "generic-pool";
-import { StoreOptions } from "./index";
+import { CacheStore, StoreOptions } from "./index";
 
 /**
  *
@@ -54,7 +54,7 @@ export interface RedisStoreOptions {
  * @export
  * @class RedisStore
  */
-export class RedisStore {
+export class RedisStore implements CacheStore {
     private options: RedisStoreOptions;
     private pool: genericPool.Pool<IORedis.Redis | IORedis.Cluster>;
     public client: IORedis.Redis | IORedis.Cluster;
@@ -203,6 +203,34 @@ export class RedisStore {
     }
 
     /**
+     *
+     *
+     * @param {*} conn
+     * @returns {*}  
+     * @memberof RedisStore
+     */
+    async release(conn: any) {
+        if (this.pool.isBorrowedResource(conn)) {
+            return this.pool.release(conn);
+        }
+        return Promise.resolve();
+    }
+
+    /**
+     * defineCommand
+     *
+     * @param {string} name
+     * @param {{ numberOfKeys?: number; lua?: string; }} scripts
+     * @returns {*}  
+     * @memberof RedisStore
+     */
+    async defineCommand(name: string, scripts: { numberOfKeys?: number; lua?: string; }) {
+        const conn = await this.getConnection();
+        conn.defineCommand(name, scripts);
+        return conn;
+    }
+
+    /**
      * handler for native client
      *
      * @param {string} name
@@ -217,10 +245,9 @@ export class RedisStore {
             const res = await conn[name](...data);
             return res;
         } catch (err) {
-            if (this.pool.isBorrowedResource(conn)) {
-                this.pool.release(conn);
-            }
             throw err;
+        } finally {
+            this.release(conn);
         }
     }
 
