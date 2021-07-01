@@ -2,7 +2,7 @@
  * @Author: richen
  * @Date: 2020-11-30 11:48:12
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-06-30 17:00:57
+ * @LastEditTime: 2021-07-01 11:03:36
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
@@ -46,6 +46,7 @@ export interface CacheStore {
     release(conn: any): Promise<void>;
     get(name: string): Promise<any>;
     set(name: string, value: string | number, timeout?: number): Promise<any>;
+    del(name: string): Promise<any>;
     defineCommand(name: string, scripts: any): any;
     getCompare(name: string, value: string | number): Promise<any>;
 }

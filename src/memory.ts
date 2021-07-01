@@ -35,7 +35,7 @@ export class MemoryStore implements CacheStore {
     }
 
     /**
-     *
+     * getConnection
      *
      * @returns {*}  
      * @memberof MemoryStore
@@ -53,7 +53,7 @@ export class MemoryStore implements CacheStore {
     }
 
     /**
-     *
+     * close
      *
      * @returns {*}  {Promise<void>}
      * @memberof MemoryStore
@@ -63,7 +63,7 @@ export class MemoryStore implements CacheStore {
         this.client = null;
     }
     /**
-     *
+     * release
      *
      * @param {*} conn
      * @returns {*}  {Promise<void>}
@@ -74,7 +74,7 @@ export class MemoryStore implements CacheStore {
     }
 
     /**
-     *
+     * defineCommand
      *
      * @param {string} name
      * @param {*} scripts
@@ -94,7 +94,7 @@ export class MemoryStore implements CacheStore {
     }
 
     /**
-     * 
+     * get and compare value
      *
      * @param {string} name
      * @param {(string | number)} value
@@ -114,7 +114,7 @@ export class MemoryStore implements CacheStore {
     }
 
     /**
-     *
+     * get
      *
      * @param {string} name
      * @returns {*}  {Promise<any>}
@@ -126,7 +126,7 @@ export class MemoryStore implements CacheStore {
     }
 
     /**
-     *
+     * set
      *
      * @param {string} name
      * @param {(string | number)} value
@@ -134,12 +134,24 @@ export class MemoryStore implements CacheStore {
      * @returns {*}  {Promise<any>}
      * @memberof MemoryStore
      */
-    async set(name: string, value: string | number, timeout?: number): Promise<any> {
+    set(name: string, value: string | number, timeout?: number): Promise<any> {
         const client = this.getConnection();
         if (helper.isTrueEmpty(timeout)) {
             timeout = this.options.timeout;
         }
         return client.setAsync(name, value, "ex", timeout);
+    }
+
+    /**
+     * del
+     *
+     * @param {string} name
+     * @returns {*}  
+     * @memberof MemoryStore
+     */
+    del(name: string) {
+        const client = this.getConnection();
+        return client.delAsync(name);
     }
 
 }

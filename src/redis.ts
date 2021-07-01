@@ -2,7 +2,7 @@
  * @Author: richen
  * @Date: 2020-11-30 15:56:08
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-06-30 17:04:33
+ * @LastEditTime: 2021-07-01 11:05:20
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
@@ -224,7 +224,7 @@ export class RedisStore implements CacheStore {
     }
 
     /**
-     *
+     * get and compare value
      *
      * @param {string} name
      * @param {(string | number)} value
@@ -232,20 +232,27 @@ export class RedisStore implements CacheStore {
      * @memberof RedisStore
      */
     async getCompare(name: string, value: string | number): Promise<any> {
-        const conn: any = await this.defineCommand("getCompare", {
-            numberOfKeys: 1,
-            lua: `
-                local remote_value = redis.call("get",KEYS[1])
-                
-                if (not remote_value) then
-                    return 0
-                elseif (remote_value == ARGV[1]) then
-                    return redis.call("del",KEYS[1])
-                else
-                    return -1
-                end
-        `});
-        return conn.getCompare(name, value);
+        let conn: any;
+        try {
+            conn = await this.defineCommand("getCompare", {
+                numberOfKeys: 1,
+                lua: `
+                    local remote_value = redis.call("get",KEYS[1])
+                    
+                    if (not remote_value) then
+                        return 0
+                    elseif (remote_value == ARGV[1]) then
+                        return redis.call("del",KEYS[1])
+                    else
+                        return -1
+                    end
+            `});
+            return conn.getCompare(name, value);
+        } catch (error) {
+            throw error;
+        } finally {
+            this.release(conn);
+        }
     }
 
     /**
