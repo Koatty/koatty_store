@@ -72,7 +72,6 @@
     },
     "dependencies": {
         "@types/ioredis": "^4.x.x",
-        "@outofsync/memory-cache": "^1.4.1",
         "generic-pool": "^3.8.2",
         "ioredis": "^4.28.0",
         "koatty_lib": "^1.x.x",
