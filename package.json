@@ -1,6 +1,6 @@
 {
     "name": "koatty_store",
-    "version": "1.4.10",
+    "version": "1.5.2",
     "description": "Cache store for koatty.",
     "scripts": {
         "build": "del-cli --force dist && tsc",
