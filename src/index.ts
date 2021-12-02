@@ -2,7 +2,7 @@
  * @Author: richen
  * @Date: 2020-11-30 11:48:12
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-12-02 15:31:20
+ * @LastEditTime: 2021-12-02 16:07:55
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
@@ -10,6 +10,8 @@ import { CacheStore } from "./store";
 import { MemoryStore } from "./store/memory";
 import { RedisStore } from "./store/redis";
 export { MemoryStore } from "./store/memory";
+// export
+export { CacheStore } from "./store";
 
 /**
  *
