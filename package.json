@@ -1,6 +1,6 @@
 {
     "name": "koatty_store",
-    "version": "1.5.5",
+    "version": "1.5.6",
     "description": "Cache store for koatty.",
     "scripts": {
         "build": "npm run build:js && npm run build:dts && npm run build:doc && npm run build:cp",
@@ -80,7 +80,7 @@
     },
     "dependencies": {
         "@types/ioredis": "^4.x.x",
-        "generic-pool": "^3.8.2",
+        "generic-pool": "^3.9.0",
         "ioredis": "^4.28.5",
         "koatty_lib": "^1.x.x",
         "koatty_logger": "^1.x.x"
