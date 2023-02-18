@@ -13,6 +13,9 @@
     "prerelease": "npm test && npm run build",
     "pub": "git push --follow-tags origin && npm publish",
     "release": "standard-version",
+    "release:pre": "npm run release -- --prerelease",
+    "release:major": "npm run release -- --release-as major",
+    "release:minor": "npm run release -- --release-as minor",
     "test": "npm run eslint && jest --passWithNoTests"
   },
   "main": "./dist/index.js",
@@ -59,7 +62,6 @@
     "@microsoft/api-documenter": "^7.x.x",
     "@microsoft/api-extractor": "^7.x.x",
     "@rollup/plugin-json": "^6.x.x",
-    "@types/ioredis": "^4.x.x",
     "@types/jest": "^29.x.x",
     "@types/koa": "^2.x.x",
     "@types/node": "^18.x.x",
@@ -82,7 +84,7 @@
   },
   "dependencies": {
     "generic-pool": "^3.9.0",
-    "ioredis": "^4.28.5",
+    "ioredis": "^5.3.1",
     "koatty_lib": "^1.x.x",
     "koatty_logger": "^2.x.x"
   },
