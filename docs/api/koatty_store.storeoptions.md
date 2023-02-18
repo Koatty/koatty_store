@@ -2,33 +2,10 @@
 
 [Home](./index.md) &gt; [koatty\_store](./koatty_store.md) &gt; [StoreOptions](./koatty_store.storeoptions.md)
 
-## StoreOptions interface
-
-  StoreOptions
+## StoreOptions type
 
 <b>Signature:</b>
 
 ```typescript
-export interface StoreOptions 
+export declare type StoreOptions = MemoryStoreOpt | RedisStoreOpt;
 ```
-
-## Properties
-
-|  Property | Type | Description |
-|  --- | --- | --- |
-|  [clusters?](./koatty_store.storeoptions.clusters.md) | Array&lt;{ host: string; port: number; }&gt; | <i>(Optional)</i> |
-|  [connectTimeout?](./koatty_store.storeoptions.connecttimeout.md) | number | <i>(Optional)</i> |
-|  [db?](./koatty_store.storeoptions.db.md) | number | <i>(Optional)</i> |
-|  [host?](./koatty_store.storeoptions.host.md) | string \| Array&lt;string&gt; | <i>(Optional)</i> |
-|  [keyPrefix?](./koatty_store.storeoptions.keyprefix.md) | string | <i>(Optional)</i> |
-|  [name?](./koatty_store.storeoptions.name.md) | string | <i>(Optional)</i> |
-|  [password?](./koatty_store.storeoptions.password.md) | string | <i>(Optional)</i> |
-|  [poolSize?](./koatty_store.storeoptions.poolsize.md) | number | <i>(Optional)</i> |
-|  [port?](./koatty_store.storeoptions.port.md) | number \| Array&lt;number&gt; | <i>(Optional)</i> |
-|  [sentinelPassword?](./koatty_store.storeoptions.sentinelpassword.md) | string | <i>(Optional)</i> |
-|  [sentinels?](./koatty_store.storeoptions.sentinels.md) | Array&lt;{ host: string; port: number; }&gt; | <i>(Optional)</i> |
-|  [sentinelUsername?](./koatty_store.storeoptions.sentinelusername.md) | string | <i>(Optional)</i> |
-|  [timeout?](./koatty_store.storeoptions.timeout.md) | number | <i>(Optional)</i> |
-|  [type?](./koatty_store.storeoptions.type.md) | string | <i>(Optional)</i> |
-|  [username?](./koatty_store.storeoptions.username.md) | string | <i>(Optional)</i> |
-

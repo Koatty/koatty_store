@@ -22,9 +22,8 @@ export declare class CacheStore
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [client](./koatty_store.cachestore.client.md) |  | any |  |
+|  [client](./koatty_store.cachestore.client.md) |  | MemoryStore \| RedisStore |  |
 |  [options](./koatty_store.cachestore.options.md) |  | [StoreOptions](./koatty_store.storeoptions.md) |  |
-|  [pool](./koatty_store.cachestore.pool.md) |  | any |  |
 
 ## Methods
 
@@ -40,6 +39,7 @@ export declare class CacheStore
 |  [get(name)](./koatty_store.cachestore.get.md) |  | 字符串获取 |
 |  [getCompare(name, value)](./koatty_store.cachestore.getcompare.md) |  |  |
 |  [getConnection()](./koatty_store.cachestore.getconnection.md) |  |  |
+|  [getInstance(options)](./koatty_store.cachestore.getinstance.md) | <code>static</code> |  |
 |  [hdel(name, key)](./koatty_store.cachestore.hdel.md) |  | 哈希删除 |
 |  [hexists(name, key)](./koatty_store.cachestore.hexists.md) |  | 查看哈希表 hashKey 中，给定域 key 是否存在 |
 |  [hget(name, key)](./koatty_store.cachestore.hget.md) |  | 哈希获取 |

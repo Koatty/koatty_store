@@ -7,5 +7,5 @@
 <b>Signature:</b>
 
 ```typescript
-client: any;
+client: MemoryStore | RedisStore;
 ```

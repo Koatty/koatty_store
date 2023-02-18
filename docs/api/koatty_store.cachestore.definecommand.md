@@ -7,7 +7,7 @@
 <b>Signature:</b>
 
 ```typescript
-defineCommand(name: string, scripts: any): void;
+defineCommand(name: string, scripts: any): Promise<any>;
 ```
 
 ## Parameters
@@ -19,5 +19,5 @@ defineCommand(name: string, scripts: any): void;
 
 <b>Returns:</b>
 
-void
+Promise&lt;any&gt;
 

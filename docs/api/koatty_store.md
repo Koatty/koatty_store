@@ -9,12 +9,10 @@
 |  Class | Description |
 |  --- | --- |
 |  [CacheStore](./koatty_store.cachestore.md) |   Store |
-|  [MemoryStore](./koatty_store.memorystore.md) |  |
-|  [Store](./koatty_store.store.md) |   Store |
 
-## Interfaces
+## Type Aliases
 
-|  Interface | Description |
+|  Type Alias | Description |
 |  --- | --- |
-|  [StoreOptions](./koatty_store.storeoptions.md) |   StoreOptions |
+|  [StoreOptions](./koatty_store.storeoptions.md) |  |
 
