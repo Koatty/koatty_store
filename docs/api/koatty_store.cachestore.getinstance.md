@@ -21,5 +21,4 @@ static getInstance(options: StoreOptions): CacheStore;
 
 [CacheStore](./koatty_store.cachestore.md)
 
- ValidateUtil
 
