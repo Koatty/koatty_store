@@ -3,13 +3,14 @@
  * @Usage:
  * @Author: richen
  * @Date: 2021-06-23 09:57:04
- * @LastEditTime: 2021-12-02 15:47:13
+ * @LastEditTime: 2023-02-19 01:02:16
  */
 import { equal } from "assert";
-import { Store } from "../src/index";
+import { CacheStore } from "../src/index";
 
 describe("MemoryCacheStore", function () {
     const conf = {
+        type: "memory",
         keyPrefix: "test",
         host: "127.0.0.1",
         port: 6379,
@@ -17,7 +18,7 @@ describe("MemoryCacheStore", function () {
         password: "123456",
         db: 0,
     }
-    const client = Store.getInstance(conf);
+    const client = CacheStore.getInstance(conf);
 
     it("get/set", async function () {
         await client.set("test1", 111);

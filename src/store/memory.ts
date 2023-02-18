@@ -1,28 +1,31 @@
-import * as helper from "koatty_lib";
-import { CacheStore } from "../store";
-import { StoreOptions } from "../index";
+import { CacheStoreInterface } from "./interface";
 import { MemoryCache, messages } from "./memory_cache";
 // const MemoryCache = require('@outofsync/memory-cache');
 
+export interface MemoryStoreOpt {
+  type: string;
+  keyPrefix?: string;
+  db?: number;
+  timeout?: number; // seconds
+}
 /*
  * @Description:
  * @Usage:
  * @Author: richen
  * @Date: 2021-06-29 19:07:57
- * @LastEditTime: 2023-01-13 11:25:19
+ * @LastEditTime: 2023-02-18 23:52:47
  */
-export class MemoryStore extends CacheStore {
+export class MemoryStore implements CacheStoreInterface {
   client: any;
   pool: any;
-  options: StoreOptions;
+  options: MemoryStoreOpt;
 
   /**
    * Creates an instance of MemoryStore.
-   * @param {StoreOptions} options
+   * @param {MemoryStoreOpt} options
    * @memberof MemoryStore
    */
-  constructor(options: StoreOptions) {
-    super(options);
+  constructor(options: MemoryStoreOpt) {
     this.options = options;
     this.client = null;
   }

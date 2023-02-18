@@ -2,88 +2,15 @@
  * @Author: richen
  * @Date: 2020-11-30 11:48:12
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-01-13 11:25:02
+ * @LastEditTime: 2023-02-19 00:02:38
  * @License: BSD (3-Clause)
  * @Copyright (c) - <richenlin(at)gmail.com>
  */
-import { CacheStore } from "./store";
+
+import { CacheStore, StoreOptions } from "./store";
 import { MemoryStore } from "./store/memory";
 import { RedisStore } from "./store/redis";
-export { MemoryStore } from "./store/memory";
+
 // export
-export { CacheStore } from "./store";
-
-/**
- *
- *
- * @export
- * @interface StoreOptions
- */
-export interface StoreOptions {
-  type?: string;
-  keyPrefix?: string;
-  host?: string | Array<string>;
-  port?: number | Array<number>;
-  username?: string;
-  password?: string;
-  db?: number;
-  timeout?: number; // seconds
-  poolSize?: number;
-  connectTimeout?: number; // milliseconds
-
-  // sentinel
-  name?: string;
-  sentinelUsername?: string;
-  sentinelPassword?: string;
-  sentinels?: Array<{ host: string; port: number }>;
-
-  // cluster
-  clusters?: Array<{ host: string; port: number }>;
-}
-
-/**
- *
- *
- * @export
- * @class Store
- */
-export class Store {
-  private static instance: CacheStore;
-
-  /**
-   * 
-   *
-   * @static
-   * @returns
-   * @memberof ValidateUtil
-   */
-  static getInstance(options: StoreOptions): CacheStore {
-    if (this.instance) {
-      return this.instance;
-    }
-    options = {
-      ...{
-        type: 'memory', // memory | redis
-        host: '',
-        port: 0,
-        keyPrefix: 'Koatty',
-        timeout: 600,
-        poolSize: 10,
-        connectTimeout: 500,
-        db: 0
-      }, ...options
-    };
-    switch (options.type) {
-      case "redis":
-        this.instance = new RedisStore(options);
-        break;
-      case "memory":
-      default:
-        this.instance = new MemoryStore(options);
-        break;
-    }
-
-    return this.instance;
-  }
-}
+export * from "./store";
 

@@ -3,11 +3,24 @@
  * @Usage: 
  * @Author: richen
  * @Date: 2021-12-02 15:26:55
- * @LastEditTime: 2023-01-13 11:25:37
+ * @LastEditTime: 2023-02-19 01:03:59
  */
 
-import { StoreOptions } from "./index";
+import { MemoryStore, MemoryStoreOpt } from "./store/memory";
+import { RedisStore, RedisStoreOpt } from "./store/redis";
 
+export type StoreOptions = MemoryStoreOpt | RedisStoreOpt;
+
+const defaultOptions = {
+  type: 'memory', // memory | redis
+  host: '',
+  port: 0,
+  keyPrefix: 'Koatty',
+  timeout: 600,
+  poolSize: 10,
+  connectTimeout: 500,
+  db: 0
+};
 /**
  *
  *
@@ -15,9 +28,9 @@ import { StoreOptions } from "./index";
  * @class Store
  */
 export class CacheStore {
-  client: any;
-  pool: any;
+  client: MemoryStore | RedisStore;
   options: StoreOptions;
+  private static instance: CacheStore;
 
   /**
    * Creates an instance of CacheStore.
@@ -25,25 +38,47 @@ export class CacheStore {
    * @memberof CacheStore
    */
   constructor(options: StoreOptions) {
-    this.options = options;
-    this.pool = null;
+    this.options = { ...defaultOptions, ...options };
     this.client = null;
+    switch (options.type) {
+      case "redis":
+        this.client = new RedisStore(options);
+        break;
+      case "memory":
+      default:
+        this.client = new MemoryStore(options);
+        break;
+    }
+  }
+
+  /**
+   * 
+   *
+   * @static
+   * @returns
+   */
+  static getInstance(options: StoreOptions): CacheStore {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new CacheStore(options);
+    return this.instance;
   }
 
   getConnection() {
-    throw new Error("Method not implemented.");
+    return this.client.getConnection();
   }
   close(): Promise<void> {
-    throw new Error("Method not implemented.");
+    return this.client.close();
   }
   release(conn: any): Promise<void> {
-    throw new Error("Method not implemented.");
+    return this.client.release(conn);
   }
   defineCommand(name: string, scripts: any) {
-    throw new Error("Method not implemented.");
+    return this.client.defineCommand(name, scripts);
   }
   getCompare(name: string, value: string | number): Promise<any> {
-    throw new Error("Method not implemented.");
+    return this.client.getCompare(name, value);
   }
 
   /**
@@ -72,7 +107,7 @@ export class CacheStore {
    * @param name
    */
   get(name: string) {
-    return this.wrap('get', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('get', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -86,7 +121,7 @@ export class CacheStore {
     if (typeof timeout !== 'number') {
       timeout = this.options.timeout;
     }
-    return this.wrap('set', [`${this.options.keyPrefix}${name}`, value, 'ex', timeout]);
+    return this.wrap('set', [`${this.options.keyPrefix || ""}${name}`, value, 'ex', timeout]);
   }
 
   /**
@@ -95,7 +130,7 @@ export class CacheStore {
    * @returns {*}
    */
   ttl(name: string) {
-    return this.wrap('ttl', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('ttl', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -104,7 +139,7 @@ export class CacheStore {
    * @param timeout
    */
   expire(name: string, timeout?: number) {
-    return this.wrap('expire', [`${this.options.keyPrefix}${name}`, timeout]);
+    return this.wrap('expire', [`${this.options.keyPrefix || ""}${name}`, timeout]);
   }
 
   /**
@@ -112,7 +147,7 @@ export class CacheStore {
    * @param name
    */
   rm(name: string) {
-    return this.wrap('del', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('del', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -122,7 +157,7 @@ export class CacheStore {
    * @returns
    */
   del(name: string) {
-    return this.wrap('del', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('del', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
 
@@ -131,7 +166,7 @@ export class CacheStore {
    * @param name
    */
   exists(name: string) {
-    return this.wrap('exists', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('exists', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -139,7 +174,7 @@ export class CacheStore {
    * @param name
    */
   incr(name: string) {
-    return this.wrap('incr', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('incr', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -148,7 +183,7 @@ export class CacheStore {
    * @returns {*}
    */
   decr(name: string) {
-    return this.wrap('decr', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('decr', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -158,7 +193,7 @@ export class CacheStore {
    * @returns {*}
    */
   incrby(name: string, incr = 1) {
-    return this.wrap('incrby', [`${this.options.keyPrefix}${name}`, incr]);
+    return this.wrap('incrby', [`${this.options.keyPrefix || ""}${name}`, incr]);
   }
 
   /**
@@ -168,7 +203,7 @@ export class CacheStore {
    * @param {any} decr 
    */
   decrby(name: string, decr = 1) {
-    return this.wrap('decrby', [`${this.options.keyPrefix}${name}`, decr]);
+    return this.wrap('decrby', [`${this.options.keyPrefix || ""}${name}`, decr]);
   }
 
   /**
@@ -179,7 +214,7 @@ export class CacheStore {
    * @param timeout
    */
   hset(name: string, key: string, value: string | number, timeout?: number) {
-    const setP = [this.wrap('hset', [`${this.options.keyPrefix}${name}`, key, value])];
+    const setP = [this.wrap('hset', [`${this.options.keyPrefix || ""}${name}`, key, value])];
     if (typeof timeout !== 'number') {
       timeout = this.options.timeout;
     }
@@ -195,7 +230,7 @@ export class CacheStore {
    */
   hget(name: string, key: string) {
     const setP = [this.get(`${name}:${key}_ex`)];
-    setP.push(this.wrap('hget', [`${this.options.keyPrefix}${name}`, key]));
+    setP.push(this.wrap('hget', [`${this.options.keyPrefix || ""}${name}`, key]));
     return Promise.all(setP).then(dataArr => {
       if (dataArr[0] === null) {
         this.hdel(name, key);
@@ -213,7 +248,7 @@ export class CacheStore {
    */
   hexists(name: string, key: string) {
     const setP = [this.get(`${name}:${key}_ex`)];
-    setP.push(this.wrap('hexists', [`${this.options.keyPrefix}${name}`, key]));
+    setP.push(this.wrap('hexists', [`${this.options.keyPrefix || ""}${name}`, key]));
     return Promise.all(setP).then(dataArr => {
       if (dataArr[0] === null) {
         this.hdel(name, key);
@@ -231,7 +266,7 @@ export class CacheStore {
    */
   hdel(name: string, key: string) {
     const setP = [this.del(`${name}:${key}_ex`)];
-    setP.push(this.wrap('hdel', [`${this.options.keyPrefix}${name}`, key]));
+    setP.push(this.wrap('hdel', [`${this.options.keyPrefix || ""}${name}`, key]));
     return Promise.all(setP);
   }
 
@@ -241,7 +276,7 @@ export class CacheStore {
    * @returns {*}
    */
   hlen(name: string) {
-    return this.wrap('hlen', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('hlen', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -252,7 +287,7 @@ export class CacheStore {
    * @returns {*}
    */
   hincrby(name: string, key: string, incr = 1) {
-    return this.wrap('hincrby', [`${this.options.keyPrefix}${name}`, key, incr]);
+    return this.wrap('hincrby', [`${this.options.keyPrefix || ""}${name}`, key, incr]);
   }
 
   /**
@@ -261,7 +296,7 @@ export class CacheStore {
    * @returns {*}
    */
   hgetall(name: string) {
-    return this.wrap('hgetall', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('hgetall', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -270,7 +305,7 @@ export class CacheStore {
    * @returns {*}
    */
   hkeys(name: string) {
-    return this.wrap('hkeys', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('hkeys', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -279,7 +314,7 @@ export class CacheStore {
    * @returns {*}
    */
   hvals(name: string) {
-    return this.wrap('hvals', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('hvals', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -288,7 +323,7 @@ export class CacheStore {
    * @returns {*}
    */
   llen(name: string) {
-    return this.wrap('llen', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('llen', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -298,7 +333,7 @@ export class CacheStore {
    * @returns {*}
    */
   rpush(name: string, value: string | number) {
-    return this.wrap('rpush', [`${this.options.keyPrefix}${name}`, value]);
+    return this.wrap('rpush', [`${this.options.keyPrefix || ""}${name}`, value]);
   }
 
   /**
@@ -310,7 +345,7 @@ export class CacheStore {
    * @memberof RedisStore
    */
   lpush(name: string, value: string | number) {
-    return this.wrap('lpush', [`${this.options.keyPrefix}${name}`, value]);
+    return this.wrap('lpush', [`${this.options.keyPrefix || ""}${name}`, value]);
   }
 
   /**
@@ -319,7 +354,7 @@ export class CacheStore {
    * @returns {*}
    */
   lpop(name: string) {
-    return this.wrap('lpop', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('lpop', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -330,7 +365,7 @@ export class CacheStore {
    * @memberof RedisStore
    */
   rpop(name: string) {
-    return this.wrap('rpop', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('rpop', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -341,7 +376,7 @@ export class CacheStore {
    * @returns {*}
    */
   lrange(name: string, start: number, stop: number) {
-    return this.wrap('lrange', [`${this.options.keyPrefix}${name}`, start, stop]);
+    return this.wrap('lrange', [`${this.options.keyPrefix || ""}${name}`, start, stop]);
   }
 
   /**
@@ -352,9 +387,9 @@ export class CacheStore {
    * @returns {*}
    */
   sadd(name: string, value: string | number, timeout?: number) {
-    const setP = [this.wrap('sadd', [`${this.options.keyPrefix}${name}`, value])];
+    const setP = [this.wrap('sadd', [`${this.options.keyPrefix || ""}${name}`, value])];
     if (typeof timeout !== 'number') {
-      setP.push(this.wrap('expire', [`${this.options.keyPrefix}${name}`, timeout]));
+      setP.push(this.wrap('expire', [`${this.options.keyPrefix || ""}${name}`, timeout]));
     }
 
     return Promise.all(setP);
@@ -366,7 +401,7 @@ export class CacheStore {
    * @returns {*}
    */
   scard(name: string) {
-    return this.wrap('scard', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('scard', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -376,7 +411,7 @@ export class CacheStore {
    * @returns {*}
    */
   sismember(name: string, key: string) {
-    return this.wrap('sismember', [`${this.options.keyPrefix}${name}`, key]);
+    return this.wrap('sismember', [`${this.options.keyPrefix || ""}${name}`, key]);
   }
 
   /**
@@ -385,7 +420,7 @@ export class CacheStore {
    * @returns {*}
    */
   smembers(name: string) {
-    return this.wrap('smembers', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('smembers', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -394,7 +429,7 @@ export class CacheStore {
    * @returns {*}
    */
   spop(name: string) {
-    return this.wrap('spop', [`${this.options.keyPrefix}${name}`]);
+    return this.wrap('spop', [`${this.options.keyPrefix || ""}${name}`]);
   }
 
   /**
@@ -404,7 +439,7 @@ export class CacheStore {
    * @returns {*}
    */
   srem(name: string, key: string) {
-    return this.wrap('srem', [`${this.options.keyPrefix}${name}`, key]);
+    return this.wrap('srem', [`${this.options.keyPrefix || ""}${name}`, key]);
   }
 
   /**
@@ -415,7 +450,7 @@ export class CacheStore {
    * @returns {*}
    */
   smove(source: string, destination: string, member: string) {
-    return this.wrap('smove', [`${this.options.keyPrefix}${source}`, `${this.options.keyPrefix}${destination}`, member]);
+    return this.wrap('smove', [`${this.options.keyPrefix || ""}${source}`, `${this.options.keyPrefix}${destination}`, member]);
   }
 
 }

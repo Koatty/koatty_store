@@ -3,7 +3,7 @@
  * @Usage: 
  * @Author: richen
  * @Date: 2021-12-02 11:03:20
- * @LastEditTime: 2023-01-13 11:25:09
+ * @LastEditTime: 2023-02-18 22:02:47
  */
 import { flatten, isNil, isUndefined, union } from "lodash";
 import * as Helper from "koatty_lib";
@@ -55,7 +55,6 @@ export class MemoryCache extends EventEmitter {
   lastSave: number;
   multiMode: boolean;
   private cache: any;
-  private tempCache: any;
   private responseMessages: any[];
 
   /**
@@ -908,7 +907,6 @@ export class MemoryCache extends EventEmitter {
     // Clear the queue mode, drain the queue, empty the watch list
     if (this.multiMode) {
       this.cache = this.databases[this.currentDBIndex];
-      this.tempCache = {};
       this.multiMode = false;
       this.responseMessages = [];
     } else if (!silent) {
