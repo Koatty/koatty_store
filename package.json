@@ -84,7 +84,7 @@
   },
   "dependencies": {
     "generic-pool": "^3.9.0",
-    "ioredis": "^5.3.1",
+    "ioredis": "^5.3.2",
     "koatty_lib": "^1.x.x",
     "koatty_logger": "^2.x.x"
   },
