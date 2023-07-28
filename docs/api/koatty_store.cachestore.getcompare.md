@@ -4,7 +4,7 @@
 
 ## CacheStore.getCompare() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 getCompare(name: string, value: string | number): Promise<any>;
@@ -17,7 +17,7 @@ getCompare(name: string, value: string | number): Promise<any>;
 |  name | string |  |
 |  value | string \| number |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

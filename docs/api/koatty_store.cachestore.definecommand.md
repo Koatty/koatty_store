@@ -4,7 +4,7 @@
 
 ## CacheStore.defineCommand() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 defineCommand(name: string, scripts: any): Promise<any>;
@@ -17,7 +17,7 @@ defineCommand(name: string, scripts: any): Promise<any>;
 |  name | string |  |
 |  scripts | any |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

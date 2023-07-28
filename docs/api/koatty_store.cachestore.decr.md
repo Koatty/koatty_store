@@ -6,7 +6,7 @@
 
 自减
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 decr(name: string): Promise<any>;
@@ -18,7 +18,7 @@ decr(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

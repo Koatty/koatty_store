@@ -6,7 +6,7 @@
 
 将 key 所储存的值增加增量
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 incrby(name: string, incr?: number): Promise<any>;
@@ -17,9 +17,9 @@ incrby(name: string, incr?: number): Promise<any>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  name | string |  |
-|  incr | number | <i>(Optional)</i> |
+|  incr | number | _(Optional)_ |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

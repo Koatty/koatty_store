@@ -6,7 +6,7 @@
 
 返回哈希表所有value
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hvals(name: string): Promise<any>;
@@ -18,7 +18,7 @@ hvals(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

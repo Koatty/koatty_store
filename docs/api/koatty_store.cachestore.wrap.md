@@ -6,7 +6,7 @@
 
 handler for native client
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 protected wrap(name: string, data: any[]): Promise<any>;
@@ -19,7 +19,7 @@ protected wrap(name: string, data: any[]): Promise<any>;
 |  name | string |  |
 |  data | any\[\] |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

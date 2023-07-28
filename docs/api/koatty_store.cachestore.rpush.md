@@ -6,7 +6,7 @@
 
 将值插入列表表尾
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 rpush(name: string, value: string | number): Promise<any>;
@@ -19,7 +19,7 @@ rpush(name: string, value: string | number): Promise<any>;
 |  name | string |  |
 |  value | string \| number |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

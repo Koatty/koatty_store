@@ -6,7 +6,7 @@
 
 字符串获取
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 get(name: string): Promise<any>;
@@ -18,7 +18,7 @@ get(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

@@ -6,7 +6,7 @@
 
 移除集合 key 中的一个 member 元素
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 srem(name: string, key: string): Promise<any>;
@@ -19,7 +19,7 @@ srem(name: string, key: string): Promise<any>;
 |  name | string |  |
 |  key | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

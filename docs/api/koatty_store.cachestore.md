@@ -6,7 +6,7 @@
 
   Store
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare class CacheStore 
@@ -68,5 +68,5 @@ export declare class CacheStore
 |  [spop(name)](./koatty_store.cachestore.spop.md) |  | 移除并返回集合中的一个随机元素 |
 |  [srem(name, key)](./koatty_store.cachestore.srem.md) |  | 移除集合 key 中的一个 member 元素 |
 |  [ttl(name)](./koatty_store.cachestore.ttl.md) |  | 以秒为单位，返回给定 key 的剩余生存时间 |
-|  [wrap(name, data)](./koatty_store.cachestore.wrap.md) |  | handler for native client |
+|  [wrap(name, data)](./koatty_store.cachestore.wrap.md) | <code>protected</code> | handler for native client |
 

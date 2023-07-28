@@ -6,7 +6,7 @@
 
 以秒为单位，返回给定 key 的剩余生存时间
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 ttl(name: string): Promise<any>;
@@ -18,7 +18,7 @@ ttl(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

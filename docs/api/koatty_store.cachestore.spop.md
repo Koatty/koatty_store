@@ -6,7 +6,7 @@
 
 移除并返回集合中的一个随机元素
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 spop(name: string): Promise<any>;
@@ -18,7 +18,7 @@ spop(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

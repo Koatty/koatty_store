@@ -6,7 +6,7 @@
 
 自增
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 incr(name: string): Promise<any>;
@@ -18,7 +18,7 @@ incr(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

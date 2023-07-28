@@ -6,7 +6,7 @@
 
 哈希删除
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hdel(name: string, key: string): Promise<any[]>;
@@ -19,7 +19,7 @@ hdel(name: string, key: string): Promise<any[]>;
 |  name | string |  |
 |  key | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any\[\]&gt;
 

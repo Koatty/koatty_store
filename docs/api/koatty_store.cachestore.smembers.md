@@ -6,7 +6,7 @@
 
 返回集合中的所有成员
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 smembers(name: string): Promise<any>;
@@ -18,7 +18,7 @@ smembers(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

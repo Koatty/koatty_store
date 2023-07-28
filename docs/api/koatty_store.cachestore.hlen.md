@@ -6,7 +6,7 @@
 
 返回哈希表 key 中域的数量
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hlen(name: string): Promise<any>;
@@ -18,7 +18,7 @@ hlen(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

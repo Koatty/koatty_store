@@ -4,7 +4,7 @@
 
 ## CacheStore.lpush() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 lpush(name: string, value: string | number): Promise<any>;
@@ -17,7 +17,7 @@ lpush(name: string, value: string | number): Promise<any>;
 |  name | string |  |
 |  value | string \| number |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

@@ -6,7 +6,7 @@
 
 集合新增
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 sadd(name: string, value: string | number, timeout?: number): Promise<any[]>;
@@ -18,9 +18,9 @@ sadd(name: string, value: string | number, timeout?: number): Promise<any[]>;
 |  --- | --- | --- |
 |  name | string |  |
 |  value | string \| number |  |
-|  timeout | number | <i>(Optional)</i> |
+|  timeout | number | _(Optional)_ |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any\[\]&gt;
 

@@ -6,7 +6,7 @@
 
 将 key 所储存的值减去减量
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 decrby(name: string, decr?: number): Promise<any>;
@@ -17,9 +17,9 @@ decrby(name: string, decr?: number): Promise<any>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  name | string |  |
-|  decr | number | <i>(Optional)</i> |
+|  decr | number | _(Optional)_ |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

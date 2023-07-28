@@ -6,7 +6,7 @@
 
 返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 lrange(name: string, start: number, stop: number): Promise<any>;
@@ -20,7 +20,7 @@ lrange(name: string, start: number, stop: number): Promise<any>;
 |  start | number |  |
 |  stop | number |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

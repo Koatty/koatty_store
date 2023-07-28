@@ -6,7 +6,7 @@
 
 返回哈希表所有key-value
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hgetall(name: string): Promise<any>;
@@ -18,7 +18,7 @@ hgetall(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

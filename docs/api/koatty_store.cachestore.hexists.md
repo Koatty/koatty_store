@@ -6,7 +6,7 @@
 
 查看哈希表 hashKey 中，给定域 key 是否存在
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hexists(name: string, key: string): Promise<any>;
@@ -19,7 +19,7 @@ hexists(name: string, key: string): Promise<any>;
 |  name | string |  |
 |  key | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

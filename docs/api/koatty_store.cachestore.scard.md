@@ -6,7 +6,7 @@
 
 返回集合的基数(集合中元素的数量)
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 scard(name: string): Promise<any>;
@@ -18,7 +18,7 @@ scard(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

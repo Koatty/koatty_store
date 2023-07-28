@@ -4,7 +4,7 @@
 
 ## StoreOptions type
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type StoreOptions = MemoryStoreOpt | RedisStoreOpt;

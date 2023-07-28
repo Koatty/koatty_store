@@ -5,7 +5,7 @@
 ## CacheStore.getInstance() method
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 static getInstance(options: StoreOptions): CacheStore;
@@ -17,7 +17,7 @@ static getInstance(options: StoreOptions): CacheStore;
 |  --- | --- | --- |
 |  options | [StoreOptions](./koatty_store.storeoptions.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
 [CacheStore](./koatty_store.cachestore.md)
 

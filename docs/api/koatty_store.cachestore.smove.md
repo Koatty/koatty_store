@@ -6,7 +6,7 @@
 
 将 member 元素从 source 集合移动到 destination 集合
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 smove(source: string, destination: string, member: string): Promise<any>;
@@ -20,7 +20,7 @@ smove(source: string, destination: string, member: string): Promise<any>;
 |  destination | string |  |
 |  member | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

@@ -6,7 +6,7 @@
 
 判断key是否存在
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 exists(name: string): Promise<any>;
@@ -18,7 +18,7 @@ exists(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

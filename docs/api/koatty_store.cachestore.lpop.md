@@ -6,7 +6,7 @@
 
 将列表表头取出，并去除
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 lpop(name: string): Promise<any>;
@@ -18,7 +18,7 @@ lpop(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

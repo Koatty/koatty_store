@@ -4,7 +4,7 @@
 
 ## CacheStore.client property
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 client: MemoryStore | RedisStore;

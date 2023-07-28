@@ -6,7 +6,7 @@
 
 Creates an instance of CacheStore.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 constructor(options: StoreOptions);

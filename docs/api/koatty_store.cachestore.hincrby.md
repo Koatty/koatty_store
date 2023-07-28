@@ -6,7 +6,7 @@
 
 给哈希表指定key，增加increment
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hincrby(name: string, key: string, incr?: number): Promise<any>;
@@ -18,9 +18,9 @@ hincrby(name: string, key: string, incr?: number): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 |  key | string |  |
-|  incr | number | <i>(Optional)</i> |
+|  incr | number | _(Optional)_ |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

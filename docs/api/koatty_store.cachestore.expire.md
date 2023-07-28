@@ -6,7 +6,7 @@
 
 设置key超时属性
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 expire(name: string, timeout?: number): Promise<any>;
@@ -17,9 +17,9 @@ expire(name: string, timeout?: number): Promise<any>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  name | string |  |
-|  timeout | number | <i>(Optional)</i> |
+|  timeout | number | _(Optional)_ |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

@@ -4,7 +4,7 @@
 
 ## CacheStore.rpop() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 rpop(name: string): Promise<any>;
@@ -16,7 +16,7 @@ rpop(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

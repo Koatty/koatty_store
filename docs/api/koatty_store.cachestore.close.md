@@ -4,12 +4,12 @@
 
 ## CacheStore.close() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 close(): Promise<void>;
 ```
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;void&gt;
 

@@ -4,7 +4,7 @@
 
 ## CacheStore.release() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 release(conn: any): Promise<void>;
@@ -16,7 +16,7 @@ release(conn: any): Promise<void>;
 |  --- | --- | --- |
 |  conn | any |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;void&gt;
 

@@ -4,7 +4,7 @@
 
 ## CacheStore.del() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 del(name: string): Promise<any>;
@@ -16,7 +16,7 @@ del(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

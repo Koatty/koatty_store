@@ -6,7 +6,7 @@
 
 哈希写入
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hset(name: string, key: string, value: string | number, timeout?: number): Promise<any[]>;
@@ -19,9 +19,9 @@ hset(name: string, key: string, value: string | number, timeout?: number): Promi
 |  name | string |  |
 |  key | string |  |
 |  value | string \| number |  |
-|  timeout | number | <i>(Optional)</i> |
+|  timeout | number | _(Optional)_ |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any\[\]&gt;
 

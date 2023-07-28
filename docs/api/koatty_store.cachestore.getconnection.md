@@ -4,12 +4,12 @@
 
 ## CacheStore.getConnection() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 getConnection(): import("./store/memory_cache").MemoryCache | Promise<import("ioredis/built/cluster").default | import("ioredis/built/Redis").default>;
 ```
-<b>Returns:</b>
+**Returns:**
 
 import("./store/memory\_cache").MemoryCache \| Promise&lt;import("ioredis/built/cluster").default \| import("ioredis/built/Redis").default&gt;
 

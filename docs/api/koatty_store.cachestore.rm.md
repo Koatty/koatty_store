@@ -6,7 +6,7 @@
 
 删除key
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 rm(name: string): Promise<any>;
@@ -18,7 +18,7 @@ rm(name: string): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

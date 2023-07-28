@@ -6,7 +6,7 @@
 
 哈希获取
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hget(name: string, key: string): Promise<any>;
@@ -19,7 +19,7 @@ hget(name: string, key: string): Promise<any>;
 |  name | string |  |
 |  key | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 

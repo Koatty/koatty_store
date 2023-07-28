@@ -6,7 +6,7 @@
 
 判断 member 元素是否集合的成员
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 sismember(name: string, key: string): Promise<any>;
@@ -19,7 +19,7 @@ sismember(name: string, key: string): Promise<any>;
 |  name | string |  |
 |  key | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;any&gt;
 
