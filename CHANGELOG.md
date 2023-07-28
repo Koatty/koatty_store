@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/koatty/koatty_store/compare/v1.6.0...v1.6.1) (2023-07-28)
+
+
+### Bug Fixes
+
+* remove words ([604d31d](https://github.com/koatty/koatty_store/commit/604d31df38814a530b32605668542821b608cb7d))
+
 ## [1.6.0](https://github.com/koatty/koatty_store/compare/v1.5.8...v1.6.0) (2023-02-18)
 
 ### [1.5.8](https://github.com/koatty/koatty_store/compare/v1.5.6...v1.5.8) (2023-01-13)
