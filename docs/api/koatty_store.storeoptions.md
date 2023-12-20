@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-export declare type StoreOptions = MemoryStoreOpt | RedisStoreOpt;
+export type StoreOptions = MemoryStoreOpt | RedisStoreOpt;
 ```
