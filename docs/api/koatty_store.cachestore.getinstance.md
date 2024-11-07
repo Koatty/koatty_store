@@ -8,14 +8,14 @@
 **Signature:**
 
 ```typescript
-static getInstance(options: StoreOptions): CacheStore;
+static getInstance(options?: StoreOptions): CacheStore;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  options | [StoreOptions](./koatty_store.storeoptions.md) |  |
+|  options | [StoreOptions](./koatty_store.storeoptions.md) | _(Optional)_ |
 
 **Returns:**
 

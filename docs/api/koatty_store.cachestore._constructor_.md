@@ -9,12 +9,12 @@ Creates an instance of CacheStore.
 **Signature:**
 
 ```typescript
-constructor(options: StoreOptions);
+constructor(options?: StoreOptions);
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  options | [StoreOptions](./koatty_store.storeoptions.md) |  CacheStore |
+|  options | [StoreOptions](./koatty_store.storeoptions.md) | _(Optional)_  CacheStore |
 
