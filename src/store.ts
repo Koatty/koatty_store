@@ -3,9 +3,8 @@
  * @Usage: 
  * @Author: richen
  * @Date: 2021-12-02 15:26:55
- * @LastEditTime: 2023-02-19 01:03:59
+ * @LastEditTime: 2024-11-07 14:27:25
  */
-
 import { MemoryStore, MemoryStoreOpt } from "./store/memory";
 import { RedisStore, RedisStoreOpt } from "./store/redis";
 
@@ -37,16 +36,16 @@ export class CacheStore {
    * @param {StoreOptions} options
    * @memberof CacheStore
    */
-  constructor(options: StoreOptions) {
-    this.options = { ...defaultOptions, ...options };
+  constructor(options?: StoreOptions) {
+    this.options = options ? { ...defaultOptions, ...options } : defaultOptions;
     this.client = null;
-    switch (options.type) {
+    switch (this.options.type) {
       case "redis":
-        this.client = new RedisStore(options);
+        this.client = new RedisStore(this.options);
         break;
       case "memory":
       default:
-        this.client = new MemoryStore(options);
+        this.client = new MemoryStore(this.options);
         break;
     }
   }
@@ -57,7 +56,7 @@ export class CacheStore {
    * @static
    * @returns
    */
-  static getInstance(options: StoreOptions): CacheStore {
+  static getInstance(options?: StoreOptions): CacheStore {
     if (this.instance) {
       return this.instance;
     }

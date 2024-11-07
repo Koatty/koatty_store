@@ -63,22 +63,22 @@ export class MemoryStore implements CacheStoreInterface {
   /**
    * release
    *
-   * @param {*} conn
+   * @param {*} _conn
    * @returns {*}  {Promise<void>}
    * @memberof MemoryStore
    */
-  async release(conn: any): Promise<void> {
+  async release(_conn: any): Promise<void> {
     return;
   }
 
   /**
    * defineCommand
    *
-   * @param {string} name
-   * @param {*} scripts
+   * @param {string} _name
+   * @param {*} _scripts
    * @memberof MemoryStore
    */
-  async defineCommand(name: string, scripts: any) {
+  async defineCommand(_name: string, _scripts: any) {
     throw new Error(messages.unsupported);
   }
 
