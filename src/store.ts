@@ -29,7 +29,7 @@ const defaultOptions = {
 export class CacheStore {
   client: MemoryStore | RedisStore;
   options: StoreOptions;
-  private static instance: CacheStore;
+  private static instances: Map<string, CacheStore> = new Map();
 
   /**
    * Creates an instance of CacheStore.
@@ -51,17 +51,78 @@ export class CacheStore {
   }
 
   /**
-   * 
-   *
+   * 获取单例实例，支持多配置实例管理
    * @static
-   * @returns
+   * @param {StoreOptions} [options]
+   * @param {string} [instanceKey='default'] 实例键名，用于区分不同配置的实例
+   * @returns {CacheStore}
    */
-  static getInstance(options?: StoreOptions): CacheStore {
-    if (this.instance) {
-      return this.instance;
+  static getInstance(options?: StoreOptions, instanceKey = 'default'): CacheStore {
+    // 生成配置哈希作为实例键的一部分
+    const configHash = options ? this.generateConfigHash(options) : 'default';
+    const fullKey = `${instanceKey}_${configHash}`;
+    
+    if (this.instances.has(fullKey)) {
+      return this.instances.get(fullKey)!;
     }
-    this.instance = new CacheStore(options);
-    return this.instance;
+    
+    const instance = new CacheStore(options);
+    this.instances.set(fullKey, instance);
+    return instance;
+  }
+
+  /**
+   * 生成配置哈希
+   * @private
+   * @static
+   * @param {StoreOptions} options
+   * @returns {string}
+   */
+  private static generateConfigHash(options: StoreOptions): string {
+    const configStr = JSON.stringify({
+      type: options.type,
+      host: (options as any).host,
+      port: (options as any).port,
+      db: options.db,
+      keyPrefix: options.keyPrefix
+    });
+    // 简单哈希函数
+    let hash = 0;
+    for (let i = 0; i < configStr.length; i++) {
+      const char = configStr.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 转换为32位整数
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  /**
+   * 清理指定实例
+   * @static
+   * @param {string} [instanceKey='default']
+   */
+  static async clearInstance(instanceKey = 'default'): Promise<void> {
+    const keysToRemove = Array.from(this.instances.keys()).filter(key => 
+      key.startsWith(`${instanceKey}_`)
+    );
+    
+    for (const key of keysToRemove) {
+      const instance = this.instances.get(key);
+      if (instance) {
+        await instance.close();
+        this.instances.delete(key);
+      }
+    }
+  }
+
+  /**
+   * 清理所有实例
+   * @static
+   */
+  static async clearAllInstances(): Promise<void> {
+    const promises = Array.from(this.instances.values()).map(instance => instance.close());
+    await Promise.all(promises);
+    this.instances.clear();
   }
 
   getConnection() {
