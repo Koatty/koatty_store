@@ -32,6 +32,9 @@ export class RedisStore implements CacheStoreInterface {
   options: RedisStoreOpt;
   pool: genericPool.Pool<Redis | Cluster>;
   public client: Redis | Cluster;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 1000; // 初始重连延迟1秒
 
   /**
    * Creates an instance of RedisStore.
@@ -93,7 +96,7 @@ export class RedisStore implements CacheStoreInterface {
   }
 
   /**
-   * create connection by native
+   * create connection by native with improved error handling
    *
    * @param {number} [connNum=0]
    * @returns {*}  {Promise<Redis | Cluster>}
@@ -106,32 +109,85 @@ export class RedisStore implements CacheStoreInterface {
 
     const defer = helper.getDefer();
     let connection: Redis | Cluster;
-    if (!helper.isEmpty(this.options.clusters)) {
-      connection = new Cluster([...this.options.clusters], { redisOptions: this.options })
-    } else {
-      connection = new Redis(<{ host: string }>this.options)
-    }
-    // 去除prefix, 防止重复
-    this.options.keyPrefix = "";
-    connection.on('end', () => {
-      if (connNum < 3) {
-        connNum++;
-        defer.resolve(this.connect(connNum));
+    
+    try {
+      if (!helper.isEmpty(this.options.clusters)) {
+        connection = new Cluster([...this.options.clusters], { 
+          redisOptions: this.options,
+          enableOfflineQueue: false,
+          retryDelayOnFailover: 100
+        });
       } else {
-        this.close();
-        defer.reject('redis connection end');
+        connection = new Redis({
+          ...this.options,
+          enableOfflineQueue: false,
+          retryDelayOnFailover: 100,
+          lazyConnect: true
+        } as RedisOptions);
       }
-    });
-    connection.on('ready', () => {
-      this.client = connection;
-      defer.resolve(connection);
-    });
+      
+      // 去除prefix, 防止重复
+      this.options.keyPrefix = "";
+      
+      connection.on('error', (err) => {
+        logger.Error(`Redis connection error: ${err.message}`);
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.scheduleReconnect(connNum);
+        } else {
+          defer.reject(new Error(`Redis connection failed after ${this.maxReconnectAttempts} attempts`));
+        }
+      });
+      
+      connection.on('end', () => {
+        logger.Warn('Redis connection ended');
+        if (connNum < 3) {
+          this.scheduleReconnect(connNum + 1);
+        } else {
+          this.close();
+          defer.reject(new Error('Redis connection end after 3 attempts'));
+        }
+      });
+      
+      connection.on('ready', () => {
+        logger.Info('Redis connection ready');
+        this.client = connection;
+        this.reconnectAttempts = 0; // 重置重连计数
+        defer.resolve(connection);
+      });
+
+      // 主动连接
+      if (connection instanceof Redis) {
+        await connection.connect();
+      }
+      
+    } catch (error) {
+      logger.Error(`Failed to create Redis connection: ${error.message}`);
+      defer.reject(error);
+    }
 
     return defer.promise;
   }
 
   /**
-   * get connection from pool
+   * 计划重连，使用指数退避策略
+   * @private
+   * @param {number} connNum
+   */
+  private scheduleReconnect(connNum: number): void {
+    this.reconnectAttempts++;
+    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+    
+    logger.Info(`Scheduling Redis reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
+    
+    setTimeout(() => {
+      this.connect(connNum).catch(err => {
+        logger.Error(`Reconnect attempt ${this.reconnectAttempts} failed: ${err.message}`);
+      });
+    }, delay);
+  }
+
+  /**
+   * get connection from pool with improved configuration
    *
    * @returns {*}  
    * @memberof RedisStore
@@ -142,22 +198,33 @@ export class RedisStore implements CacheStoreInterface {
         create: () => {
           return this.connect();
         },
-        destroy: () => {
-          return this.close();
+        destroy: (resource: Redis | Cluster) => {
+          if (resource && typeof resource.disconnect === 'function') {
+            resource.disconnect();
+          }
+          return Promise.resolve();
         },
         validate: (resource: Redis | Cluster) => {
-          return Promise.resolve(resource.status === 'ready');
+          return Promise.resolve(resource && resource.status === 'ready');
         }
       };
+      
       this.pool = genericPool.createPool(factory, {
         max: this.options.poolSize || 10, // maximum size of the pool
-        min: 2 // minimum size of the pool
+        min: Math.min(2, this.options.poolSize || 2), // minimum size of the pool
+        acquireTimeoutMillis: 30000, // 30秒获取连接超时
+        testOnBorrow: true, // 借用时测试连接
+        evictionRunIntervalMillis: 30000, // 30秒检查一次空闲连接
+        idleTimeoutMillis: 300000, // 5分钟空闲超时
+        softIdleTimeoutMillis: 180000 // 3分钟软空闲超时
       });
+      
       this.pool.on('factoryCreateError', function (err) {
-        logger.Error(err);
+        logger.Error(`Redis pool create error: ${err.message}`);
       });
+      
       this.pool.on('factoryDestroyError', function (err) {
-        logger.Error(err);
+        logger.Error(`Redis pool destroy error: ${err.message}`);
       });
     }
 
@@ -165,17 +232,28 @@ export class RedisStore implements CacheStoreInterface {
   }
 
   /**
-   * close connection
+   * close connection with proper cleanup
    *
    * @returns {*}  
    * @memberof RedisStore
    */
   async close() {
-    this.client.disconnect();
-    this.client = null;
-    this.pool.destroy(this.client);
-    this.pool = null;
-    return;
+    try {
+      if (this.pool) {
+        await this.pool.drain();
+        await this.pool.clear();
+        this.pool = null;
+      }
+      
+      if (this.client) {
+        if (typeof this.client.disconnect === 'function') {
+          this.client.disconnect();
+        }
+        this.client = null;
+      }
+    } catch (error) {
+      logger.Error(`Error closing Redis connection: ${error.message}`);
+    }
   }
 
   /**
