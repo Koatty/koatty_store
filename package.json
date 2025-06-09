@@ -68,6 +68,7 @@
     "@types/jest": "^29.x.x",
     "@types/koa": "^2.x.x",
     "@types/lodash": "^4.x.x",
+    "@types/lru-cache": "^7.10.9",
     "@types/node": "^22.x.x",
     "@typescript-eslint/eslint-plugin": "^8.x.x",
     "@typescript-eslint/parser": "^8.x.x",
@@ -94,7 +95,8 @@
     "ioredis": "^5.4.2",
     "koatty_lib": "^1.x.x",
     "koatty_logger": "^2.x.x",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "lru-cache": "^11.1.0"
   },
   "peerDependencies": {
     "koatty_lib": "^1.x.x",
