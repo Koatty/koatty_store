@@ -12,10 +12,6 @@ export interface CacheStoreInterface {
   close(): Promise<void>;
   release(conn: any): Promise<void>;
   
-  // 扩展功能
-  defineCommand(name: string, scripts: any): void;
-  getCompare(name: string, value: string | number): Promise<any>;
-  
   // 基础操作
   get?(name: string): Promise<string | null>;
   set?(name: string, value: string | number, timeout?: number): Promise<string>;
