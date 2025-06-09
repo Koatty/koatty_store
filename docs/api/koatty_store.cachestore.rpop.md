@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-rpop(name: string): Promise<any>;
+rpop(name: string): Promise<string | null>;
 ```
 
 ## Parameters
@@ -18,7 +18,7 @@ rpop(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;string \| null&gt;
 
 {<!-- -->\*<!-- -->}  RedisStore
 

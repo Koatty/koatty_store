@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hvals(name: string): Promise<any>;
+hvals(name: string): Promise<any[]>;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ hvals(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;any\[\]&gt;
 
 {<!-- -->\*<!-- -->}
 

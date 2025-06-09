@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hget(name: string, key: string): Promise<any>;
+hget(name: string, key: string): Promise<string | null>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ hget(name: string, key: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;string \| null&gt;
 
 {<!-- -->\*<!-- -->}
 

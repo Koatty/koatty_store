@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-srem(name: string, key: string): Promise<any>;
+srem(name: string, key: string): Promise<number>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ srem(name: string, key: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

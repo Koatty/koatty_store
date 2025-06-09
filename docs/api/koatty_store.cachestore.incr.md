@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-incr(name: string): Promise<any>;
+incr(name: string): Promise<number>;
 ```
 
 ## Parameters
@@ -20,5 +20,5 @@ incr(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 

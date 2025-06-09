@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-del(name: string): Promise<any>;
+del(name: string): Promise<number>;
 ```
 
 ## Parameters
@@ -18,6 +18,6 @@ del(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 

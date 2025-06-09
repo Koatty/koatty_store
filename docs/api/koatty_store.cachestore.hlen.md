@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hlen(name: string): Promise<any>;
+hlen(name: string): Promise<number>;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ hlen(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

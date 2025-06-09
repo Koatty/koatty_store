@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-get(name: string): Promise<any>;
+get(name: string): Promise<string | null>;
 ```
 
 ## Parameters
@@ -20,5 +20,5 @@ get(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;string \| null&gt;
 

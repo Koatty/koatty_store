@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-decr(name: string): Promise<any>;
+decr(name: string): Promise<number>;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ decr(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-lpop(name: string): Promise<any>;
+lpop(name: string): Promise<string | null>;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ lpop(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;string \| null&gt;
 
 {<!-- -->\*<!-- -->}
 

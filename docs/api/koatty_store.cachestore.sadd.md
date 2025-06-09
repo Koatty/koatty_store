@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-sadd(name: string, value: string | number, timeout?: number): Promise<any[]>;
+sadd(name: string, value: string | number, timeout?: number): Promise<number>;
 ```
 
 ## Parameters
@@ -22,7 +22,7 @@ sadd(name: string, value: string | number, timeout?: number): Promise<any[]>;
 
 **Returns:**
 
-Promise&lt;any\[\]&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

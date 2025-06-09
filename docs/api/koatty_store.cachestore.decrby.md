@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-decrby(name: string, decr?: number): Promise<any>;
+decrby(name: string, decrement: number): Promise<number>;
 ```
 
 ## Parameters
@@ -17,9 +17,9 @@ decrby(name: string, decr?: number): Promise<any>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  name | string |  |
-|  decr | number | _(Optional)_ |
+|  decrement | number |  |
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 

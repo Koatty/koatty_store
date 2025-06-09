@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-lpush(name: string, value: string | number): Promise<any>;
+lpush(name: string, value: string | number): Promise<number>;
 ```
 
 ## Parameters
@@ -19,7 +19,7 @@ lpush(name: string, value: string | number): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}  RedisStore
 

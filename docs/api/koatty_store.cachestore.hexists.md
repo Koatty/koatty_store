@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hexists(name: string, key: string): Promise<any>;
+hexists(name: string, key: string): Promise<number>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ hexists(name: string, key: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-scard(name: string): Promise<any>;
+scard(name: string): Promise<number>;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ scard(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

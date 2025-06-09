@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-expire(name: string, timeout?: number): Promise<any>;
+expire(name: string, timeout: number): Promise<number>;
 ```
 
 ## Parameters
@@ -17,9 +17,9 @@ expire(name: string, timeout?: number): Promise<any>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  name | string |  |
-|  timeout | number | _(Optional)_ |
+|  timeout | number |  |
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 

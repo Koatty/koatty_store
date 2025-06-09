@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-set(name: string, value: string | number, timeout?: number): Promise<any>;
+set(name: string, value: string | number, timeout?: number): Promise<string>;
 ```
 
 ## Parameters
@@ -22,7 +22,7 @@ set(name: string, value: string | number, timeout?: number): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;string&gt;
 
 {<!-- -->Promise<!-- -->}
 

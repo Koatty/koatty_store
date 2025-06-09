@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-incrby(name: string, incr?: number): Promise<any>;
+incrby(name: string, increment: number): Promise<number>;
 ```
 
 ## Parameters
@@ -17,11 +17,11 @@ incrby(name: string, incr?: number): Promise<any>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  name | string |  |
-|  incr | number | _(Optional)_ |
+|  increment | number |  |
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

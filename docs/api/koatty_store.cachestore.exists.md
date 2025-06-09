@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-exists(name: string): Promise<any>;
+exists(name: string): Promise<number>;
 ```
 
 ## Parameters
@@ -20,5 +20,5 @@ exists(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 

@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hset(name: string, key: string, value: string | number, timeout?: number): Promise<any[]>;
+hset(name: string, key: string, value: string | number, timeout?: number): Promise<number>;
 ```
 
 ## Parameters
@@ -23,5 +23,5 @@ hset(name: string, key: string, value: string | number, timeout?: number): Promi
 
 **Returns:**
 
-Promise&lt;any\[\]&gt;
+Promise&lt;number&gt;
 

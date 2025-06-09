@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-sismember(name: string, key: string): Promise<any>;
+sismember(name: string, key: string): Promise<number>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ sismember(name: string, key: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

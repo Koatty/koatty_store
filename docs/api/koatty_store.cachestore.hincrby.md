@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hincrby(name: string, key: string, incr?: number): Promise<any>;
+hincrby(name: string, key: string, increment: number): Promise<number>;
 ```
 
 ## Parameters
@@ -18,11 +18,11 @@ hincrby(name: string, key: string, incr?: number): Promise<any>;
 |  --- | --- | --- |
 |  name | string |  |
 |  key | string |  |
-|  incr | number | _(Optional)_ |
+|  increment | number |  |
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

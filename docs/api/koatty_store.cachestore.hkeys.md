@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hkeys(name: string): Promise<any>;
+hkeys(name: string): Promise<string[]>;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ hkeys(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;string\[\]&gt;
 
 {<!-- -->\*<!-- -->}
 

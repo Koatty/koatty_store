@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-lrange(name: string, start: number, stop: number): Promise<any>;
+lrange(name: string, start: number, stop: number): Promise<any[]>;
 ```
 
 ## Parameters
@@ -22,7 +22,7 @@ lrange(name: string, start: number, stop: number): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;any\[\]&gt;
 
 {<!-- -->\*<!-- -->}
 

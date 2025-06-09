@@ -9,8 +9,9 @@
 **Signature:**
 
 ```typescript
-export declare class CacheStore 
+export declare class CacheStore implements CacheStoreInterface 
 ```
+**Implements:** CacheStoreInterface
 
 ## Constructors
 
@@ -29,34 +30,34 @@ export declare class CacheStore
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
+|  [clearAllInstances()](./koatty_store.cachestore.clearallinstances.md) | <code>static</code> | 清理所有实例  |
+|  [clearInstance(instanceKey)](./koatty_store.cachestore.clearinstance.md) | <code>static</code> | 清理指定实例  |
 |  [close()](./koatty_store.cachestore.close.md) |  |  |
 |  [decr(name)](./koatty_store.cachestore.decr.md) |  | 自减 |
-|  [decrby(name, decr)](./koatty_store.cachestore.decrby.md) |  | 将 key 所储存的值减去减量 |
-|  [defineCommand(name, scripts)](./koatty_store.cachestore.definecommand.md) |  |  |
+|  [decrby(name, decrement)](./koatty_store.cachestore.decrby.md) |  | 将 key 所储存的值减去减量 |
 |  [del(name)](./koatty_store.cachestore.del.md) |  |  |
 |  [exists(name)](./koatty_store.cachestore.exists.md) |  | 判断key是否存在 |
 |  [expire(name, timeout)](./koatty_store.cachestore.expire.md) |  | 设置key超时属性 |
 |  [get(name)](./koatty_store.cachestore.get.md) |  | 字符串获取 |
-|  [getCompare(name, value)](./koatty_store.cachestore.getcompare.md) |  |  |
 |  [getConnection()](./koatty_store.cachestore.getconnection.md) |  |  |
-|  [getInstance(options)](./koatty_store.cachestore.getinstance.md) | <code>static</code> |  |
+|  [getInstance(options, instanceKey)](./koatty_store.cachestore.getinstance.md) | <code>static</code> | 获取单例实例，支持多配置实例管理  |
+|  [getRawClient()](./koatty_store.cachestore.getrawclient.md) |  | 获取底层实现客户端，用于访问特定实现的功能 例如：Redis的defineCommand, getCompare等 |
 |  [hdel(name, key)](./koatty_store.cachestore.hdel.md) |  | 哈希删除 |
 |  [hexists(name, key)](./koatty_store.cachestore.hexists.md) |  | 查看哈希表 hashKey 中，给定域 key 是否存在 |
 |  [hget(name, key)](./koatty_store.cachestore.hget.md) |  | 哈希获取 |
 |  [hgetall(name)](./koatty_store.cachestore.hgetall.md) |  | 返回哈希表所有key-value |
-|  [hincrby(name, key, incr)](./koatty_store.cachestore.hincrby.md) |  | 给哈希表指定key，增加increment |
+|  [hincrby(name, key, increment)](./koatty_store.cachestore.hincrby.md) |  | 给哈希表指定key，增加increment |
 |  [hkeys(name)](./koatty_store.cachestore.hkeys.md) |  | 返回哈希表所有key |
 |  [hlen(name)](./koatty_store.cachestore.hlen.md) |  | 返回哈希表 key 中域的数量 |
 |  [hset(name, key, value, timeout)](./koatty_store.cachestore.hset.md) |  | 哈希写入 |
 |  [hvals(name)](./koatty_store.cachestore.hvals.md) |  | 返回哈希表所有value |
 |  [incr(name)](./koatty_store.cachestore.incr.md) |  | 自增 |
-|  [incrby(name, incr)](./koatty_store.cachestore.incrby.md) |  | 将 key 所储存的值增加增量 |
+|  [incrby(name, increment)](./koatty_store.cachestore.incrby.md) |  | 将 key 所储存的值增加增量 |
 |  [llen(name)](./koatty_store.cachestore.llen.md) |  | 判断列表长度，若不存在则表示为空 |
 |  [lpop(name)](./koatty_store.cachestore.lpop.md) |  | 将列表表头取出，并去除 |
 |  [lpush(name, value)](./koatty_store.cachestore.lpush.md) |  |  |
 |  [lrange(name, start, stop)](./koatty_store.cachestore.lrange.md) |  | 返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定 |
 |  [release(conn)](./koatty_store.cachestore.release.md) |  |  |
-|  [rm(name)](./koatty_store.cachestore.rm.md) |  | 删除key |
 |  [rpop(name)](./koatty_store.cachestore.rpop.md) |  |  |
 |  [rpush(name, value)](./koatty_store.cachestore.rpush.md) |  | 将值插入列表表尾 |
 |  [sadd(name, value, timeout)](./koatty_store.cachestore.sadd.md) |  | 集合新增 |

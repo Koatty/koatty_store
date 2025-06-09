@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-hdel(name: string, key: string): Promise<any[]>;
+hdel(name: string, key: string): Promise<number>;
 ```
 
 ## Parameters
@@ -21,7 +21,7 @@ hdel(name: string, key: string): Promise<any[]>;
 
 **Returns:**
 
-Promise&lt;any\[\]&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 

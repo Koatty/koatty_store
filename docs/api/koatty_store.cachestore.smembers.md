@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-smembers(name: string): Promise<any>;
+smembers(name: string): Promise<any[]>;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ smembers(name: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;any\[\]&gt;
 
 {<!-- -->\*<!-- -->}
 

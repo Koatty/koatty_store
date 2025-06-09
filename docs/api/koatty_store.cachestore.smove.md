@@ -9,7 +9,7 @@
 **Signature:**
 
 ```typescript
-smove(source: string, destination: string, member: string): Promise<any>;
+smove(source: string, destination: string, member: string): Promise<number>;
 ```
 
 ## Parameters
@@ -22,7 +22,7 @@ smove(source: string, destination: string, member: string): Promise<any>;
 
 **Returns:**
 
-Promise&lt;any&gt;
+Promise&lt;number&gt;
 
 {<!-- -->\*<!-- -->}
 
