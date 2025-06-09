@@ -7,6 +7,10 @@ export interface MemoryStoreOpt {
   keyPrefix?: string;
   db?: number;
   timeout?: number; // seconds
+  maxKeys?: number; // LRU最大键数量
+  maxMemory?: number; // 最大内存使用（字节）
+  evictionPolicy?: 'lru' | 'lfu' | 'random'; // 淘汰策略
+  ttlCheckInterval?: number; // TTL检查间隔（毫秒）
 }
 /*
  * @Description:
@@ -26,7 +30,12 @@ export class MemoryStore implements CacheStoreInterface {
    * @memberof MemoryStore
    */
   constructor(options: MemoryStoreOpt) {
-    this.options = options;
+    this.options = {
+      maxKeys: 1000,
+      evictionPolicy: 'lru',
+      ttlCheckInterval: 60000, // 1分钟
+      ...options
+    };
     this.client = null;
   }
 
@@ -39,7 +48,11 @@ export class MemoryStore implements CacheStoreInterface {
   getConnection(): MemoryCache {
     if (!this.pool) {
       this.pool = new MemoryCache({
-        database: this.options.db
+        database: this.options.db || 0,
+        maxKeys: this.options.maxKeys,
+        maxMemory: this.options.maxMemory,
+        evictionPolicy: this.options.evictionPolicy,
+        ttlCheckInterval: this.options.ttlCheckInterval
       });
     }
     if (!this.client) {
@@ -57,8 +70,10 @@ export class MemoryStore implements CacheStoreInterface {
    * @memberof MemoryStore
    */
   async close(): Promise<void> {
-    this.client.end()
-    this.client = null;
+    if (this.client) {
+      this.client.end();
+      this.client = null;
+    }
   }
   /**
    * release
@@ -102,5 +117,18 @@ export class MemoryStore implements CacheStoreInterface {
     }
   }
 
-
+  /**
+   * 获取缓存统计信息
+   */
+  getStats(): any {
+    if (this.client) {
+      return this.client.info();
+    }
+    return {
+      keys: 0,
+      memory: 0,
+      hits: 0,
+      misses: 0
+    };
+  }
 }
