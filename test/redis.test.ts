@@ -18,12 +18,16 @@ describe("MemoryCacheStore", function () {
         // password: "123456",
         db: 0,
     }
-    const client = CacheStore.getInstance();
+    const client = CacheStore.getInstance(conf);
+
+    afterAll(async () => {
+        await CacheStore.clearAllInstances();
+    });
 
     it("get/set", async function () {
         await client.set("test1", 111);
         let res = await client.get("test1");
-        equal(res, 111);
+        equal(res, "111"); // get方法返回字符串
         console.log(res);
     });
 
@@ -32,7 +36,7 @@ describe("MemoryCacheStore", function () {
         let res = await client.hget("test2", "test");
 
         console.log(res);
-        equal(res, 222);
+        equal(res, "222"); // hget方法返回字符串
     });
 
     it("del", async function () {

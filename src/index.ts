@@ -272,6 +272,9 @@ export class CacheStore implements CacheStoreInterface {
     const result = await this.wrap('hset', [`${this.options.keyPrefix || ""}${name}`, key, value]);
     if (typeof timeout === 'number') {
       await this.set(`${name}:${key}_ex`, 1, timeout);
+    } else {
+      // 如果没有指定timeout，设置一个永久标记，避免hget时误删
+      await this.set(`${name}:${key}_ex`, 1);
     }
     return result;
   }
