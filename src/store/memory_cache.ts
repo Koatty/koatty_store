@@ -115,9 +115,13 @@ export class MemoryCache extends EventEmitter {
       max: this.options.maxKeys || 1000,
       ttl: this.options.maxAge || 1000 * 60 * 60, // 1小时默认
       updateAgeOnGet: true, // 访问时更新age
-      dispose: (key: any, item: any) => {
-        // 键被淘汰时的回调
-        this.emit('evict', key, item);
+      dispose: (value: any, key: any, reason: string) => {
+        // 键被淘汰时的回调 - 直接使用lru-cache的事件机制
+        this.emit('evict', key, value, reason);
+      },
+      onInsert: (value: any, key: any) => {
+        // 键被插入时的回调
+        this.emit('insert', key, value);
       }
     });
   }
