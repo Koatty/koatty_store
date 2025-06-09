@@ -8,6 +8,19 @@
 import { flatten, isNil, isUndefined, union } from "lodash";
 import * as Helper from "koatty_lib";
 import { EventEmitter } from "events";
+import { LRUCache } from "lru-cache";
+
+export type CallbackFunction<T = any> = (err: Error | null, result?: T) => void;
+
+/**
+ * 缓存项接口
+ */
+interface _CacheItem {
+  value: any;
+  type: string;
+  timeout?: number;
+  lastAccess: number;
+}
 
 /**
  *
@@ -45,10 +58,15 @@ export enum messages {
  */
 interface MemoryCacheOptions {
   database: number;
+  maxKeys?: number; // 最大键数量，用于LRU
+  maxMemory?: number; // 最大内存使用（字节）
+  evictionPolicy?: 'lru' | 'lfu' | 'random'; // 淘汰策略
+  ttlCheckInterval?: number; // TTL检查间隔（毫秒）
+  maxAge?: number; // 默认过期时间（毫秒）
 }
 
 export class MemoryCache extends EventEmitter {
-  private databases: any = Object.create({});
+  private databases: Map<number, any> = new Map();
   options: MemoryCacheOptions;
   currentDBIndex: number;
   connected: boolean;
@@ -56,19 +74,95 @@ export class MemoryCache extends EventEmitter {
   multiMode: boolean;
   private cache: any;
   private responseMessages: any[];
+  private ttlCheckTimer: NodeJS.Timeout | null = null;
 
   /**
    * Creates an instance of MemoryCache.
-   * @param {*} options
+   * @param {MemoryCacheOptions} options
    * @memberof MemoryCache
    */
   constructor(options: MemoryCacheOptions) {
     super();
-    this.options = { ...{ database: "0" }, ...options };
-    this.currentDBIndex = 0;
+    this.options = { 
+      database: 0, 
+      maxKeys: 1000,
+      evictionPolicy: 'lru',
+      ttlCheckInterval: 60000, // 1分钟检查一次过期键
+      maxAge: 1000 * 60 * 60, // 默认1小时过期
+      ...options 
+    };
+    this.currentDBIndex = options.database || 0;
     this.connected = false;
     this.lastSave = Date.now();
     this.multiMode = false;
+    this.responseMessages = [];
+    
+    // 初始化数据库和缓存
+    if (!this.databases.has(this.currentDBIndex)) {
+      this.databases.set(this.currentDBIndex, this.createLRUCache());
+    }
+    this.cache = this.databases.get(this.currentDBIndex)!;
+    
+    // 启动TTL检查定时器
+    this.startTTLCheck();
+  }
+
+  /**
+   * 创建LRU缓存实例
+   */
+  private createLRUCache(): any {
+    return new LRUCache({
+      max: this.options.maxKeys || 1000,
+      ttl: this.options.maxAge || 1000 * 60 * 60, // 1小时默认
+      updateAgeOnGet: true, // 访问时更新age
+      dispose: (key: any, item: any) => {
+        // 键被淘汰时的回调
+        this.emit('evict', key, item);
+      }
+    });
+  }
+
+  /**
+   * 启动TTL检查定时器
+   */
+  private startTTLCheck(): void {
+    if (this.ttlCheckTimer) {
+      clearInterval(this.ttlCheckTimer);
+    }
+    
+    this.ttlCheckTimer = setInterval(() => {
+      this.cleanExpiredKeys();
+    }, this.options.ttlCheckInterval || 60000);
+  }
+
+  /**
+   * 清理过期键
+   */
+  private cleanExpiredKeys(): void {
+    for (const [_dbIndex, cache] of this.databases) {
+      const keysToDelete: string[] = [];
+      
+      cache.forEach((item: any, key: any) => {
+        if (item.timeout && item.timeout <= Date.now()) {
+          keysToDelete.push(key);
+        }
+      });
+      
+      keysToDelete.forEach(key => {
+        cache.delete(key);
+        this.emit('expire', key);
+      });
+    }
+  }
+
+  /**
+   * 停止TTL检查
+   */
+  private stopTTLCheck(): void {
+    if (this.ttlCheckTimer) {
+      clearInterval(this.ttlCheckTimer);
+      this.ttlCheckTimer = null;
+    }
   }
 
   /**
@@ -78,8 +172,10 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   createClient() {
-    this.databases[this.options.database] = Object.create({});
-    this.cache = this.databases[this.options.database];
+    if (!this.databases.has(this.options.database)) {
+      this.databases.set(this.options.database, this.createLRUCache());
+    }
+    this.cache = this.databases.get(this.options.database)!;
     this.connected = true;
     // exit multi mode if we are in it
     this.discard(null, true);
@@ -96,6 +192,7 @@ export class MemoryCache extends EventEmitter {
    */
   quit() {
     this.connected = false;
+    this.stopTTLCheck();
     // exit multi mode if we are in it
     this.discard(null, true);
     this.emit('end');
@@ -113,6 +210,46 @@ export class MemoryCache extends EventEmitter {
   }
 
   /**
+   * 获取缓存统计信息
+   */
+  info(): any {
+    const stats = {
+      databases: this.databases.size,
+      currentDB: this.currentDBIndex,
+      keys: this.cache ? this.cache.length : 0,
+      maxKeys: this.options.maxKeys,
+      hits: 0,
+      misses: 0,
+      memory: this.getMemoryUsage()
+    };
+    
+    // 如果缓存支持统计信息
+    if (this.cache && typeof this.cache.dump === 'function') {
+      const dump = this.cache.dump();
+      stats.keys = dump.length;
+    }
+    
+    return stats;
+  }
+
+  /**
+   * 估算内存使用量
+   */
+  private getMemoryUsage(): number {
+    let totalSize = 0;
+    
+    for (const [, cache] of this.databases) {
+      cache.forEach((item: any, key: any) => {
+        // 粗略估算：key长度 + JSON序列化后的大小
+        totalSize += key.length * 2; // Unicode字符占2字节
+        totalSize += JSON.stringify(item).length * 2;
+      });
+    }
+    
+    return totalSize;
+  }
+
+  /**
    *
    *
    * @param {string} message
@@ -120,7 +257,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  echo(message: string, callback?: Function) {
+  echo(message: string, callback?: CallbackFunction) {
     return this._handleCallback(callback, message);
   }
 
@@ -132,7 +269,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  ping(message: string, callback?: Function) {
+  ping(message: string, callback?: CallbackFunction) {
     message = message || messages.pong;
     return this._handleCallback(callback, message);
   }
@@ -145,7 +282,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  auth(password: string, callback?: Function) {
+  auth(password: string, callback?: CallbackFunction) {
     return this._handleCallback(callback, messages.ok);
   }
 
@@ -157,16 +294,16 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  select(dbIndex: number, callback?: Function) {
+  select(dbIndex: number, callback?: CallbackFunction) {
     if (!Helper.isNumber(dbIndex)) {
       return this._handleCallback(callback, null, messages.invalidDBIndex);
     }
-    if (!this.databases.hasOwnProperty(dbIndex)) {
-      this.databases[dbIndex] = Object.create({});
+    if (!this.databases.has(dbIndex)) {
+      this.databases.set(dbIndex, this.createLRUCache());
     }
     this.multiMode = false;
     this.currentDBIndex = dbIndex;
-    this.cache = this.databases[dbIndex];
+    this.cache = this.databases.get(dbIndex)!;
 
     return this._handleCallback(callback, messages.ok);
   }
@@ -174,7 +311,7 @@ export class MemoryCache extends EventEmitter {
   // ---------------------------------------
   // Keys
   // ---------------------------------------
-  get(key: string, callback?: Function) {
+  get(key: string, callback?: CallbackFunction) {
     let retVal = null;
     if (this._hasKey(key)) {
       this._testType(key, 'string', true, callback);
@@ -250,7 +387,7 @@ export class MemoryCache extends EventEmitter {
     } else if (onlyexist) {
       return this._handleCallback(callback, retVal);
     }
-    this.cache[key] = this._makeKey(value.toString(), 'string', pttl);
+    this.cache.set(key, this._makeKey(value.toString(), 'string', pttl));
 
     return this._handleCallback(callback, messages.ok);
   }
@@ -263,7 +400,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  ttl(key: string, callback?: Function) {
+  ttl(key: string, callback?: CallbackFunction) {
     let retVal = this.pttl(key);
     if (retVal >= 0 || retVal <= -3) {
       retVal = Math.floor(retVal / 1000);
@@ -280,10 +417,11 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  expire(key: string, seconds: number, callback?: Function) {
+  expire(key: string, seconds: number, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
-      this.cache[key].timeout = Date.now() + seconds * 1000;
+      const pttl = seconds * 1000;
+      this.cache.set(key, { ...this.cache.get(key)!, timeout: Date.now() + pttl });
       retVal = 1;
     }
     return this._handleCallback(callback, retVal);
@@ -305,7 +443,7 @@ export class MemoryCache extends EventEmitter {
     for (let itr = 0; itr < keys.length; itr++) {
       const key = keys[itr];
       if (this._hasKey(key)) {
-        delete this.cache[key];
+        this.cache.delete(key);
         retVal++;
       }
     }
@@ -341,7 +479,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  incr(key: string, callback?: Function) {
+  incr(key: string, callback?: CallbackFunction) {
     let retVal = null;
     try {
       retVal = this._addToKey(key, 1);
@@ -360,7 +498,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  incrby(key: string, amount: number, callback?: Function) {
+  incrby(key: string, amount: number, callback?: CallbackFunction) {
     let retVal = null;
     try {
       retVal = this._addToKey(key, amount);
@@ -378,7 +516,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  decr(key: string, callback?: Function) {
+  decr(key: string, callback?: CallbackFunction) {
     let retVal = null;
     try {
       retVal = this._addToKey(key, -1);
@@ -397,10 +535,10 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  decrby(key: string, amount: number, callback?: Function) {
+  decrby(key: string, amount: number, callback?: CallbackFunction) {
     let retVal = null;
     try {
-      retVal = this._addToKey(key, -amount);
+      retVal = this._addToKey(key, 0 - amount);
     } catch (err) {
       return this._handleCallback(callback, null, err);
     }
@@ -410,12 +548,12 @@ export class MemoryCache extends EventEmitter {
   // ---------------------------------------
   // ## Hash ##
   // ---------------------------------------
-  hset(key: string, field: string, value: string | number, callback?: Function) {
+  hset(key: string, field: string, value: string | number, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
     } else {
-      this.cache[key] = this._makeKey({}, 'hash');
+      this.cache.set(key, this._makeKey({}, 'hash'));
     }
 
     if (!this._hasField(key, field)) {
@@ -437,7 +575,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  hget(key: string, field: string, callback?: Function) {
+  hget(key: string, field: string, callback?: CallbackFunction) {
     let retVal = null;
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
@@ -457,7 +595,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  hexists(key: string, field: string, callback?: Function) {
+  hexists(key: string, field: string, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
@@ -484,7 +622,7 @@ export class MemoryCache extends EventEmitter {
       for (let itr = 0; itr < fields.length; itr++) {
         const field = fields[itr];
         if (this._hasField(key, field)) {
-          delete this.cache[key].value[field];
+          delete this.cache.get(key)!.value[field];
           retVal++;
         }
       }
@@ -500,7 +638,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  hlen(key: string, callback?: Function) {
+  hlen(key: string, callback?: CallbackFunction) {
     const retVal = this.hkeys(key).length;
     return this._handleCallback(callback, retVal);
   }
@@ -515,7 +653,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  hincrby(key: string, field: string, value: any, callback?: Function) {
+  hincrby(key: string, field: string, value: any, callback?: CallbackFunction) {
     let retVal;
     try {
       retVal = this._addToField(key, field, value, false);
@@ -533,7 +671,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  hgetall(key: string, callback?: Function) {
+  hgetall(key: string, callback?: CallbackFunction) {
     let retVals = {};
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
@@ -550,7 +688,7 @@ export class MemoryCache extends EventEmitter {
   * @returns {*}  
   * @memberof MemoryCache
   */
-  hkeys(key: string, callback?: Function) {
+  hkeys(key: string, callback?: CallbackFunction) {
     let retVals: any[] = [];
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
@@ -568,7 +706,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  hvals(key: string, callback?: Function) {
+  hvals(key: string, callback?: CallbackFunction) {
     let retVals: any[] = [];
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
@@ -590,7 +728,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  llen(key: string, callback?: Function) {
+  llen(key: string, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'list', true, callback);
@@ -609,42 +747,80 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  rpush(key: string, value: string | number, callback?: Function) {
+  rpush(key: string, value: string | number, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'list', true, callback);
     } else {
-      this.cache[key] = this._makeKey([], 'list');
+      this.cache.set(key, this._makeKey([], 'list'));
     }
 
-    const val = this._getKey(key);
-    val.push(value);
-    this._setKey(key, val);
-    retVal = val.length;
+    this._getKey(key).push(value.toString());
+    retVal = this._getKey(key).length;
+    this.persist(key);
+
     return this._handleCallback(callback, retVal);
   }
 
   /**
-   *
-   *
-   * @param {string} key
-   * @param {(string | number)} value
-   * @param {Function} [callback]
-   * @returns {*}  
-   * @memberof MemoryCache
+   * List：从左侧推入
+   * @param key 
+   * @param value 
+   * @param callback 
    */
-  lpush(key: string, value: string | number, callback?: Function) {
+  lpush(key: string, value: any, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'list', true, callback);
     } else {
-      this.cache[key] = this._makeKey([], 'list');
+      this.cache.set(key, this._makeKey([], 'list'));
     }
+    const list = this._getKey(key);
+    retVal = list.unshift(value);
+    this._setKey(key, list);
+    return this._handleCallback(callback, retVal);
+  }
 
-    const val = this._getKey(key);
-    val.splice(0, 0, value);
-    this._setKey(key, val);
-    retVal = val.length;
+  /**
+   * List：获取指定索引的元素
+   * @param key 
+   * @param index 
+   * @param callback 
+   */
+  lindex(key: string, index: number, callback?: CallbackFunction) {
+    if (!this._hasKey(key)) {
+      return this._handleCallback(callback, null);
+    }
+    
+    this._testType(key, 'list', true, callback);
+    const list = this._getKey(key);
+    
+    if (index < 0) {
+      index = list.length + index;
+    }
+    
+    const value = index >= 0 && index < list.length ? list[index] : null;
+    return this._handleCallback(callback, value);
+  }
+
+  /**
+   *
+   *
+   * @param {string} key
+   * @param {Function} [callback]
+   * @returns {*}  
+   * @memberof MemoryCache
+   */
+  lpop(key: string, callback?: CallbackFunction) {
+    let retVal = null;
+    if (this._hasKey(key)) {
+      this._testType(key, 'list', true, callback);
+      const list = this._getKey(key);
+      if (list.length > 0) {
+        retVal = list.shift();
+        this.persist(key);
+      }
+    }
     return this._handleCallback(callback, retVal);
   }
 
@@ -656,35 +832,16 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  lpop(key: string, callback?: Function) {
+  rpop(key: string, callback?: CallbackFunction) {
     let retVal = null;
     if (this._hasKey(key)) {
       this._testType(key, 'list', true, callback);
-      const val = this._getKey(key);
-      retVal = val.shift();
-      this._setKey(key, val);
+      const list = this._getKey(key);
+      if (list.length > 0) {
+        retVal = list.pop();
+        this.persist(key);
+      }
     }
-
-    return this._handleCallback(callback, retVal);
-  }
-
-  /**
-   *
-   *
-   * @param {string} key
-   * @param {Function} [callback]
-   * @returns {*}  
-   * @memberof MemoryCache
-   */
-  rpop(key: string, callback?: Function) {
-    let retVal = null;
-    if (this._hasKey(key)) {
-      this._testType(key, 'list', true, callback);
-      const val = this._getKey(key);
-      retVal = val.pop();
-      this._setKey(key, val);
-    }
-
     return this._handleCallback(callback, retVal);
   }
 
@@ -698,12 +855,12 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  lrange(key: string, start: number, stop: number, callback?: Function) {
+  lrange(key: string, start: number, stop: number, callback?: CallbackFunction) {
     const retVal = [];
     if (this._hasKey(key)) {
       this._testType(key, 'list', true, callback);
-      const val = this._getKey(key);
-      const length = val.length;
+      const list = this._getKey(key);
+      const length = list.length;
       if (stop < 0) {
         stop = length + stop;
       }
@@ -719,7 +876,7 @@ export class MemoryCache extends EventEmitter {
       if (stop >= 0 && stop >= start) {
         const size = stop - start + 1;
         for (let itr = start; itr < size; itr++) {
-          retVal.push(val[itr]);
+          retVal.push(list[itr]);
         }
       }
     }
@@ -744,7 +901,7 @@ export class MemoryCache extends EventEmitter {
     if (this._hasKey(key)) {
       this._testType(key, 'set', true, callback);
     } else {
-      this.cache[key] = this._makeKey([], 'set');
+      this.cache.set(key, this._makeKey([], 'set'));
     }
     const val = this._getKey(key);
     const length = val.length;
@@ -764,7 +921,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  scard(key: string, callback?: Function) {
+  scard(key: string, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'set', true, callback);
@@ -782,7 +939,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  sismember(key: string, member: string, callback?: Function) {
+  sismember(key: string, member: string, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'set', true, callback);
@@ -803,7 +960,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  smembers(key: string, callback?: Function) {
+  smembers(key: string, callback?: CallbackFunction) {
     let retVal = [];
     if (this._hasKey(key)) {
       this._testType(key, 'set', true, callback);
@@ -821,21 +978,29 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  spop(key: string, count?: number, callback?: Function) {
-    let retVal = null;
+  spop(key: string, count?: number, callback?: CallbackFunction) {
+    let retVal: any[] = [];
     count = count || 1;
-    if (isNaN(count)) {
-      return this._handleCallback(callback, null, messages.noint);
+    if (typeof count === 'function') {
+      callback = count;
+      count = 1;
     }
-
     if (this._hasKey(key)) {
-      retVal = [];
       this._testType(key, 'set', true, callback);
       const val = this._getKey(key);
-      const length = val.length;
-      count = count > length ? length : count;
-      for (let itr = 0; itr < count; itr++) {
-        retVal.push(val.pop());
+      const keys = Object.keys(val);
+      const keysLength = keys.length;
+      if (keysLength) {
+        if (count >= keysLength) {
+          retVal = keys;
+          this.del(key);
+        } else {
+          for (let itr = 0; itr < count; itr++) {
+            const randomNum = Math.floor(Math.random() * keys.length);
+            retVal.push(keys[randomNum]);
+            this.srem(key, keys[randomNum]);
+          }
+        }
       }
     }
 
@@ -881,7 +1046,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  smove(sourcekey: string, destkey: string, member: string, callback?: Function) {
+  smove(sourcekey: string, destkey: string, member: string, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(sourcekey)) {
       this._testType(sourcekey, 'set', true, callback);
@@ -903,16 +1068,17 @@ export class MemoryCache extends EventEmitter {
   // https://redis.io/topics/transactions
   // This can be accomplished by temporarily swapping this.cache to a temporary copy of the current statement
   // holding and then using __.merge on actual this.cache with the temp storage.
-  discard(callback?: Function, silent?: boolean) {
+  discard(callback?: CallbackFunction, silent?: boolean) {
     // Clear the queue mode, drain the queue, empty the watch list
     if (this.multiMode) {
-      this.cache = this.databases[this.currentDBIndex];
+      this.cache = this.databases.get(this.currentDBIndex)!;
       this.multiMode = false;
       this.responseMessages = [];
-    } else if (!silent) {
-      return this._handleCallback(callback, null, messages.nomultidiscard);
     }
-    return this._handleCallback(callback, messages.ok);
+    if (!silent) {
+      return this._handleCallback(callback, messages.ok);
+    }
+    return null;
   }
 
   // ---------------------------------------
@@ -927,11 +1093,11 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  private pttl(key: string, callback?: Function): number {
+  private pttl(key: string, _callback?: CallbackFunction): number {
     let retVal = -2;
     if (this._hasKey(key)) {
-      if (!isNil(this.cache[key].timeout)) {
-        retVal = this.cache[key].timeout - Date.now();
+      if (!isNil(this.cache.get(key)?.timeout)) {
+        retVal = this.cache.get(key)!.timeout - Date.now();
         // Prevent unexpected errors if the actual ttl just happens to be -2 or -1
         if (retVal < 0 && retVal > -3) {
           retVal = -3;
@@ -940,7 +1106,7 @@ export class MemoryCache extends EventEmitter {
         retVal = -1;
       }
     }
-    return <number>this._handleCallback(callback, retVal);
+    return retVal;
   }
 
   /**
@@ -952,11 +1118,11 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  private persist(key: string, callback?: Function) {
+  private persist(key: string, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       if (!isNil(this._key(key).timeout)) {
-        this._key(key).timeout = null;
+        this.cache.set(key, { ...this.cache.get(key)!, timeout: null });
         retVal = 1;
       }
     }
@@ -972,7 +1138,7 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   private _hasKey(key: string) {
-    return this.cache.hasOwnProperty(key);
+    return this.cache.has(key);
   }
 
   /**
@@ -998,8 +1164,8 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   private _key(key: string) {
-    this.cache[key].lastAccess = Date.now();
-    return this.cache[key];
+    this.cache.get(key)!.lastAccess = Date.now();
+    return this.cache.get(key)!;
   }
 
   /**
@@ -1012,7 +1178,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  private _addToKey(key: string, amount: number, callback?: Function) {
+  private _addToKey(key: string, amount: number, callback?: CallbackFunction) {
     let keyValue = 0;
     if (isNaN(amount) || isNil(amount)) {
       return this._handleCallback(callback, null, messages.noint);
@@ -1025,7 +1191,7 @@ export class MemoryCache extends EventEmitter {
         return this._handleCallback(callback, null, messages.noint);
       }
     } else {
-      this.cache[key] = this._makeKey('0', 'string');
+      this.cache.set(key, this._makeKey('0', 'string'));
     }
     const val = keyValue + amount;
     this._setKey(key, val.toString());
@@ -1043,7 +1209,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  private _testType(key: string, type: string, throwError?: boolean, callback?: Function) {
+  private _testType(key: string, type: string, throwError?: boolean, callback?: CallbackFunction) {
     throwError = !!throwError;
     const keyType = this._key(key).type;
     if (keyType !== type) {
@@ -1081,8 +1247,7 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   private _setKey(key: string, value: any) {
-    this.cache[key].value = value;
-    this.cache[key].lastAccess = Date.now();
+    this.cache.set(key, { ...this.cache.get(key)!, value: value, lastAccess: Date.now() });
   }
 
   /**
@@ -1097,7 +1262,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  private _addToField(key: string, field: string, amount?: number, useFloat?: boolean, callback?: Function) {
+  private _addToField(key: string, field: string, amount?: number, useFloat?: boolean, callback?: CallbackFunction) {
     useFloat = useFloat || false;
     let fieldValue = useFloat ? 0.0 : 0;
     let value = 0;
@@ -1112,7 +1277,7 @@ export class MemoryCache extends EventEmitter {
         value = this._getField(key, field);
       }
     } else {
-      this.cache[key] = this._makeKey({}, 'hash');
+      this.cache.set(key, this._makeKey({}, 'hash'));
     }
 
     fieldValue = useFloat ? parseFloat(`${value}`) : parseInt(`${value}`);
@@ -1182,7 +1347,7 @@ export class MemoryCache extends EventEmitter {
    * @returns {*}  
    * @memberof MemoryCache
    */
-  private _handleCallback(callback?: Function, message?: any, error?: any, nolog?: boolean) {
+  private _handleCallback(callback?: CallbackFunction<any>, message?: any, error?: any, nolog?: boolean) {
     let err = error;
     let msg = message;
     nolog = isNil(nolog) ? true : nolog;
@@ -1230,5 +1395,375 @@ export class MemoryCache extends EventEmitter {
     return;
   }
 
+  /**
+   * 字符串追加操作
+   * @param key 
+   * @param value 
+   * @param callback 
+   */
+  append(key: string, value: string, callback?: CallbackFunction) {
+    let retVal = 0;
+    if (this._hasKey(key)) {
+      this._testType(key, 'string', true, callback);
+      const existingValue = this._getKey(key);
+      const newValue = existingValue + value;
+      this._setKey(key, newValue);
+      retVal = newValue.length;
+    } else {
+      this.cache.set(key, this._makeKey(value, 'string'));
+      retVal = value.length;
+    }
+    return this._handleCallback(callback, retVal);
+  }
 
+  /**
+   * 获取字符串长度
+   * @param key 
+   * @param callback 
+   */
+  strlen(key: string, callback?: CallbackFunction) {
+    let retVal = 0;
+    if (this._hasKey(key)) {
+      this._testType(key, 'string', true, callback);
+      retVal = this._getKey(key).length;
+    }
+    return this._handleCallback(callback, retVal);
+  }
+
+  /**
+   * 获取子字符串
+   * @param key 
+   * @param start 
+   * @param end 
+   * @param callback 
+   */
+  getrange(key: string, start: number, end: number, callback?: CallbackFunction) {
+    let retVal = '';
+    if (this._hasKey(key)) {
+      this._testType(key, 'string', true, callback);
+      const value = this._getKey(key);
+      retVal = value.substring(start, end + 1);
+    }
+    return this._handleCallback(callback, retVal);
+  }
+
+  /**
+   * 设置子字符串
+   * @param key 
+   * @param offset 
+   * @param value 
+   * @param callback 
+   */
+  setrange(key: string, offset: number, value: string, callback?: CallbackFunction) {
+    let retVal = 0;
+    if (this._hasKey(key)) {
+      this._testType(key, 'string', true, callback);
+      const existingValue = this._getKey(key);
+      const newValue = existingValue.substring(0, offset) + value + existingValue.substring(offset + value.length);
+      this._setKey(key, newValue);
+      retVal = newValue.length;
+    } else {
+      // 如果键不存在，创建一个足够长的字符串
+      const newValue = ''.padEnd(offset, '\0') + value;
+      this.cache.set(key, this._makeKey(newValue, 'string'));
+      retVal = newValue.length;
+    }
+    return this._handleCallback(callback, retVal);
+  }
+
+  /**
+   * 批量获取
+   * @param keys 
+   * @param callback 
+   */
+  mget(...keys: any[]) {
+    const callback = this._retrieveCallback(keys);
+    const retVal: any[] = [];
+    
+    for (const key of keys) {
+      if (this._hasKey(key)) {
+        this._testType(key, 'string', false, callback);
+        retVal.push(this._getKey(key));
+      } else {
+        retVal.push(null);
+      }
+    }
+    
+    return this._handleCallback(callback, retVal);
+  }
+
+  /**
+   * 批量设置
+   * @param keyValuePairs 
+   * @param callback 
+   */
+  mset(...keyValuePairs: any[]) {
+    const callback = this._retrieveCallback(keyValuePairs);
+    
+    // 确保参数是偶数个
+    if (keyValuePairs.length % 2 !== 0) {
+      return this._handleCallback(callback, null, messages.wrongArgCount.replace('%0', 'mset'));
+    }
+    
+    for (let i = 0; i < keyValuePairs.length; i += 2) {
+      const key = keyValuePairs[i];
+      const value = keyValuePairs[i + 1];
+      this.cache.set(key, this._makeKey(value.toString(), 'string'));
+    }
+    
+    return this._handleCallback(callback, messages.ok);
+  }
+
+  /**
+   * 获取所有键
+   * @param pattern 
+   * @param callback 
+   */
+  keys(pattern: string = '*', callback?: CallbackFunction) {
+    const retVal: string[] = [];
+    
+    this.cache.forEach((_item: any, key: any) => {
+      if (pattern === '*' || this.matchPattern(key, pattern)) {
+        retVal.push(key);
+      }
+    });
+    
+    return this._handleCallback(callback, retVal);
+  }
+
+  /**
+   * 简单的模式匹配
+   * @param key 
+   * @param pattern 
+   */
+  private matchPattern(key: string, pattern: string): boolean {
+    if (pattern === '*') return true;
+    
+    // 转换glob模式为正则表达式
+    const regexPattern = pattern
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.')
+      .replace(/\[([^\]]*)\]/g, '[$1]');
+    
+    const regex = new RegExp(`^${regexPattern}$`);
+    return regex.test(key);
+  }
+
+  /**
+   * 获取随机键
+   * @param callback 
+   */
+  randomkey(callback?: CallbackFunction) {
+    const keys: string[] = [];
+    this.cache.forEach((_item: any, key: any) => {
+      keys.push(key);
+    });
+    
+    if (keys.length === 0) {
+      return this._handleCallback(callback, null);
+    }
+    
+    const randomIndex = Math.floor(Math.random() * keys.length);
+    return this._handleCallback(callback, keys[randomIndex]);
+  }
+
+  /**
+   * 重命名键
+   * @param oldKey 
+   * @param newKey 
+   * @param callback 
+   */
+  rename(oldKey: string, newKey: string, callback?: CallbackFunction) {
+    if (!this._hasKey(oldKey)) {
+      return this._handleCallback(callback, null, messages.nokey);
+    }
+    
+    const value = this.cache.get(oldKey);
+    this.cache.set(newKey, value);
+    this.cache.delete(oldKey);
+    
+    return this._handleCallback(callback, messages.ok);
+  }
+
+  /**
+   * 安全重命名键（目标键不存在时才重命名）
+   * @param oldKey 
+   * @param newKey 
+   * @param callback 
+   */
+  renamenx(oldKey: string, newKey: string, callback?: CallbackFunction) {
+    if (!this._hasKey(oldKey)) {
+      return this._handleCallback(callback, null, messages.nokey);
+    }
+    
+    if (this._hasKey(newKey)) {
+      return this._handleCallback(callback, 0);
+    }
+    
+    const value = this.cache.get(oldKey);
+    this.cache.set(newKey, value);
+    this.cache.delete(oldKey);
+    
+    return this._handleCallback(callback, 1);
+  }
+
+  /**
+   * 获取键的类型
+   * @param key 
+   * @param callback 
+   */
+  type(key: string, callback?: CallbackFunction) {
+    if (!this._hasKey(key)) {
+      return this._handleCallback(callback, 'none');
+    }
+    
+    const item = this.cache.get(key);
+    return this._handleCallback(callback, item.type);
+  }
+
+  /**
+   * 清空当前数据库
+   * @param callback 
+   */
+  flushdb(callback?: CallbackFunction) {
+    this.cache.clear();
+    return this._handleCallback(callback, messages.ok);
+  }
+
+  /**
+   * 清空所有数据库
+   * @param callback 
+   */
+  flushall(callback?: CallbackFunction) {
+    this.databases.clear();
+    this.cache = this.createLRUCache();
+    this.databases.set(this.currentDBIndex, this.cache);
+    return this._handleCallback(callback, messages.ok);
+  }
+
+  /**
+   * 获取数据库大小
+   * @param callback 
+   */
+  dbsize(callback?: CallbackFunction) {
+    const size = this.cache.size || 0;
+    return this._handleCallback(callback, size);
+  }
+
+  /**
+   * Sorted Set基础实现 - 添加成员
+   * @param key 
+   * @param score 
+   * @param member 
+   * @param callback 
+   */
+  zadd(key: string, score: number, member: string, callback?: CallbackFunction) {
+    let retVal = 0;
+    
+    if (this._hasKey(key)) {
+      this._testType(key, 'zset', true, callback);
+    } else {
+      this.cache.set(key, this._makeKey([], 'zset'));
+    }
+    
+    const zset = this._getKey(key);
+    const existing = zset.find((item: any) => item.member === member);
+    
+    if (existing) {
+      existing.score = score;
+    } else {
+      zset.push({ score, member });
+      retVal = 1;
+    }
+    
+    // 按分数排序
+    zset.sort((a: any, b: any) => a.score - b.score);
+    this._setKey(key, zset);
+    
+    return this._handleCallback(callback, retVal);
+  }
+
+  /**
+   * Sorted Set - 获取成员分数
+   * @param key 
+   * @param member 
+   * @param callback 
+   */
+  zscore(key: string, member: string, callback?: CallbackFunction) {
+    if (!this._hasKey(key)) {
+      return this._handleCallback(callback, null);
+    }
+    
+    this._testType(key, 'zset', true, callback);
+    const zset = this._getKey(key);
+    const item = zset.find((item: any) => item.member === member);
+    
+    return this._handleCallback(callback, item ? item.score : null);
+  }
+
+  /**
+   * Sorted Set - 获取范围内的成员
+   * @param key 
+   * @param start 
+   * @param stop 
+   * @param callback 
+   */
+  zrange(key: string, start: number, stop: number, callback?: CallbackFunction) {
+    if (!this._hasKey(key)) {
+      return this._handleCallback(callback, []);
+    }
+    
+    this._testType(key, 'zset', true, callback);
+    const zset = this._getKey(key);
+    const length = zset.length;
+    
+    if (stop < 0) {
+      stop = length + stop;
+    }
+    if (start < 0) {
+      start = length + start;
+    }
+    
+    const retVal = zset.slice(start, stop + 1).map((item: any) => item.member);
+    return this._handleCallback(callback, retVal);
+  }
+
+  /**
+   * Sorted Set - 获取成员数量
+   * @param key 
+   * @param callback 
+   */
+  zcard(key: string, callback?: CallbackFunction) {
+    if (!this._hasKey(key)) {
+      return this._handleCallback(callback, 0);
+    }
+    
+    this._testType(key, 'zset', true, callback);
+    const zset = this._getKey(key);
+    return this._handleCallback(callback, zset.length);
+  }
+
+  /**
+   * Sorted Set - 删除成员
+   * @param key 
+   * @param member 
+   * @param callback 
+   */
+  zrem(key: string, member: string, callback?: CallbackFunction) {
+    let retVal = 0;
+    
+    if (this._hasKey(key)) {
+      this._testType(key, 'zset', true, callback);
+      const zset = this._getKey(key);
+      const index = zset.findIndex((item: any) => item.member === member);
+      
+      if (index !== -1) {
+        zset.splice(index, 1);
+        retVal = 1;
+        this._setKey(key, zset);
+      }
+    }
+    
+    return this._handleCallback(callback, retVal);
+  }
 }
