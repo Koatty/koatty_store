@@ -32,7 +32,7 @@
     // "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
     // "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
     /* Module Resolution Options */
-    "moduleResolution": "bundler" /* Specify module resolution strategy for bundlers */,
+    "moduleResolution": "node" /* Specify module resolution strategy - classic Node.js resolution */,
     // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
     // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
@@ -48,6 +48,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "useUnknownInCatchVariables": false /* Default catch clause variables as unknown instead of any. */,
+    "skipLibCheck": true /* Skip type checking of declaration files */,
     /* Source Map Options */
     // "sourceRoot": "./",                    /* Specify the location where debugger should locate TypeScript files instead of source locations. */
     // "mapRoot": "./",                       /* Specify the location where debugger should locate map files instead of generated locations. */

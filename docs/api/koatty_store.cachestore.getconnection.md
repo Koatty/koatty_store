@@ -7,9 +7,9 @@
 **Signature:**
 
 ```typescript
-getConnection(): import("./store/memory_cache").MemoryCache | Promise<import("ioredis").Cluster | import("ioredis").default>;
+getConnection(): import("./store/memory_cache").MemoryCache | Promise<import("ioredis").default | import("ioredis").Cluster>;
 ```
 **Returns:**
 
-import("./store/memory\_cache").MemoryCache \| Promise&lt;import("ioredis").Cluster \| import("ioredis").default&gt;
+import("./store/memory\_cache").MemoryCache \| Promise&lt;import("ioredis").default \| import("ioredis").Cluster&gt;
 
