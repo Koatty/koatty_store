@@ -65,6 +65,7 @@
     "@rollup/plugin-commonjs": "^28.x.x",
     "@rollup/plugin-json": "^6.x.x",
     "@rollup/plugin-node-resolve": "^15.x.x",
+    "@types/async-lock": "^1.4.2",
     "@types/jest": "^29.x.x",
     "@types/koa": "^2.x.x",
     "@types/lodash": "^4.x.x",
@@ -91,12 +92,13 @@
     "typescript": "^5.x.x"
   },
   "dependencies": {
+    "async-lock": "^1.4.1",
     "generic-pool": "^3.9.0",
-    "ioredis": "^5.4.2",
+    "ioredis": "^5.8.2",
     "koatty_lib": "^1.x.x",
     "koatty_logger": "^2.x.x",
     "lodash": "^4.17.21",
-    "lru-cache": "^11.1.0"
+    "lru-cache": "^11.2.2"
   },
   "peerDependencies": {
     "koatty_lib": "^1.x.x",
