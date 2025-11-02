@@ -1,6 +1,6 @@
 {
   "name": "koatty_store",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Cache store for koatty.",
   "scripts": {
     "build": "npm run build:js && npm run build:dts && npm run build:doc && npm run build:cp",

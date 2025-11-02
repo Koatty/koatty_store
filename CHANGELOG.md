@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://github.com/koatty/koatty_store/compare/v1.7.0...v1.9.0) (2025-11-02)
+
+
+### Features
+
+* enhance CacheStoreInterface with extended command support, memory store optimization options ([05c7513](https://github.com/koatty/koatty_store/commit/05c75137e45902570620a86714a260ae1f21aee9))
+* enhance MemoryCache eviction event with additional insert event and detailed reason ([d1537f7](https://github.com/koatty/koatty_store/commit/d1537f70f2c8ba3aed676296575fde7f92caf9d4))
+* implement comprehensive CacheStore with memory/redis support ([d10f36d](https://github.com/koatty/koatty_store/commit/d10f36d362ebb416755a6e5d10591c8d582d356b))
+* implement field-level TTL, concurrency control and cleanup; fix lrange logic and hash TTL issues; improve type safety and error handling ([2f2c547](https://github.com/koatty/koatty_store/commit/2f2c54703ca224d89eb065cc6ed1a3c8f7fe533e))
+* implement LRU cache ([a426b4b](https://github.com/koatty/koatty_store/commit/a426b4b93e8a0e7572972e7e823f24c6f9a9e3f0))
+* implement multi-instance CacheStore management with configurable keys and cleanup methods ([7fdc773](https://github.com/koatty/koatty_store/commit/7fdc77389f2e37d18659444cac82bdfc5b9cd358))
+* improve Redis connection handling with reconnection logic and pool configuration ([79b2836](https://github.com/koatty/koatty_store/commit/79b2836ba3dab7fef7a094d69697e1d7d52d1e90))
+* optimize hash operations with field-level TTL in MemoryCache and improve error handling ([676772b](https://github.com/koatty/koatty_store/commit/676772b08fd2cb68d42388feb57d6ca2c3b8c6af))
+
+
+### Bug Fixes
+
+* ensure hash entries are not prematurely evicted when timeout is not specified ([961db57](https://github.com/koatty/koatty_store/commit/961db5761dd0d1ecf1e15da35ccc1e74d047d6e7))
+
 ## [1.8.1](https://github.com/koatty/koatty_store/compare/v1.8.0...v1.8.1) (2024-12-XX)
 
 ### Bug Fixes
