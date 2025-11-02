@@ -8,6 +8,7 @@
 import { MemoryStore, MemoryStoreOpt } from "./store/memory";
 import { RedisStore, RedisStoreOpt } from "./store/redis";
 import { CacheStoreInterface } from "./store/interface";
+import { DefaultLogger as logger } from "koatty_logger";
 
 export type StoreOptions = MemoryStoreOpt | RedisStoreOpt;
 
@@ -160,9 +161,20 @@ export class CacheStore implements CacheStoreInterface {
       const res = await conn[name](...data);
       return res;
     } catch (err) {
-      throw err;
+      // 添加详细的错误信息
+      const error = new Error(`Cache operation failed: ${name}(${data.slice(0, 2).join(', ')}${data.length > 2 ? '...' : ''}) - ${err.message}`);
+      error.stack = err.stack;
+      throw error;
     } finally {
-      this.release(conn);
+      // 安全地释放连接
+      if (conn) {
+        try {
+          await this.release(conn);
+        } catch (releaseErr) {
+          // 记录但不抛出，避免掩盖原始错误
+          logger.Error(`Failed to release connection: ${releaseErr.message}`);
+        }
+      }
     }
   }
 
@@ -269,14 +281,8 @@ export class CacheStore implements CacheStoreInterface {
    * @param timeout
    */
   async hset(name: string, key: string, value: string | number, timeout?: number): Promise<number> {
-    const result = await this.wrap('hset', [`${this.options.keyPrefix || ""}${name}`, key, value]);
-    if (typeof timeout === 'number') {
-      await this.set(`${name}:${key}_ex`, 1, timeout);
-    } else {
-      // 如果没有指定timeout，设置一个永久标记，避免hget时误删
-      await this.set(`${name}:${key}_ex`, 1);
-    }
-    return result;
+    // MemoryStore 直接支持字段级 TTL，传递 timeout 参数
+    return this.wrap('hset', [`${this.options.keyPrefix || ""}${name}`, key, value, timeout]);
   }
 
   /**
@@ -286,15 +292,8 @@ export class CacheStore implements CacheStoreInterface {
    * @returns {*}
    */
   hget(name: string, key: string): Promise<string | null> {
-    const setP = [this.get(`${name}:${key}_ex`)];
-    setP.push(this.wrap('hget', [`${this.options.keyPrefix || ""}${name}`, key]));
-    return Promise.all(setP).then(dataArr => {
-      if (dataArr[0] === null) {
-        this.hdel(name, key);
-        return null;
-      }
-      return dataArr[1] || null;
-    });
+    // 直接调用底层实现，TTL 检查在 MemoryCache 中处理
+    return this.wrap('hget', [`${this.options.keyPrefix || ""}${name}`, key]);
   }
 
   /**
@@ -304,15 +303,8 @@ export class CacheStore implements CacheStoreInterface {
    * @returns {*}
    */
   hexists(name: string, key: string): Promise<number> {
-    const setP = [this.get(`${name}:${key}_ex`)];
-    setP.push(this.wrap('hexists', [`${this.options.keyPrefix || ""}${name}`, key]));
-    return Promise.all(setP).then(dataArr => {
-      if (dataArr[0] === null) {
-        this.hdel(name, key);
-        return 0;
-      }
-      return Number(dataArr[1]) || 0;
-    });
+    // 直接调用底层实现，TTL 检查在 MemoryCache 中处理
+    return this.wrap('hexists', [`${this.options.keyPrefix || ""}${name}`, key]);
   }
 
   /**
@@ -322,9 +314,8 @@ export class CacheStore implements CacheStoreInterface {
    * @returns {*}
    */
   async hdel(name: string, key: string): Promise<number> {
-    await this.del(`${name}:${key}_ex`);
-    const result = await this.wrap('hdel', [`${this.options.keyPrefix || ""}${name}`, key]);
-    return result;
+    // 直接调用底层实现，TTL 清理在 MemoryCache 中处理
+    return this.wrap('hdel', [`${this.options.keyPrefix || ""}${name}`, key]);
   }
 
   /**

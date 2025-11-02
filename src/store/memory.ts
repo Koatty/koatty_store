@@ -1,4 +1,3 @@
-import { CacheStoreInterface } from "./interface";
 import { MemoryCache, messages } from "./memory_cache";
 // const MemoryCache = require('@outofsync/memory-cache');
 
@@ -19,9 +18,8 @@ export interface MemoryStoreOpt {
  * @Date: 2021-06-29 19:07:57
  * @LastEditTime: 2023-02-18 23:52:47
  */
-export class MemoryStore implements CacheStoreInterface {
-  client: any;
-  pool: any;
+export class MemoryStore {
+  client: MemoryCache;
   options: MemoryStoreOpt;
 
   /**
@@ -36,7 +34,15 @@ export class MemoryStore implements CacheStoreInterface {
       ttlCheckInterval: 60000, // 1分钟
       ...options
     };
-    this.client = null;
+    // 直接创建 MemoryCache 实例
+    this.client = new MemoryCache({
+      database: this.options.db || 0,
+      maxKeys: this.options.maxKeys,
+      maxMemory: this.options.maxMemory,
+      evictionPolicy: this.options.evictionPolicy,
+      ttlCheckInterval: this.options.ttlCheckInterval
+    });
+    this.client.createClient();
   }
 
   /**
@@ -46,20 +52,7 @@ export class MemoryStore implements CacheStoreInterface {
    * @memberof MemoryStore
    */
   getConnection(): MemoryCache {
-    if (!this.pool) {
-      this.pool = new MemoryCache({
-        database: this.options.db || 0,
-        maxKeys: this.options.maxKeys,
-        maxMemory: this.options.maxMemory,
-        evictionPolicy: this.options.evictionPolicy,
-        ttlCheckInterval: this.options.ttlCheckInterval
-      });
-    }
-    if (!this.client) {
-      this.client = this.pool.createClient();
-      this.client.status = "ready";
-    }
-
+    // 直接返回 MemoryCache 实例
     return this.client;
   }
 
@@ -83,7 +76,8 @@ export class MemoryStore implements CacheStoreInterface {
    * @memberof MemoryStore
    */
   async release(_conn: any): Promise<void> {
-    return;
+    // 对于内存存储，不需要释放连接
+    return Promise.resolve();
   }
 
   /**

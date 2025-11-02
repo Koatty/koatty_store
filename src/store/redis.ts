@@ -10,7 +10,6 @@ import * as helper from "koatty_lib";
 import { DefaultLogger as logger } from "koatty_logger";
 import { Redis, Cluster, RedisOptions, ClusterOptions } from "ioredis";
 import genericPool from "generic-pool";
-import { CacheStoreInterface } from "./interface";
 
 /**
  * @description: 
@@ -28,7 +27,7 @@ export interface RedisStoreOpt extends RedisOptions, ClusterOptions {
  * @export
  * @class RedisStore
  */
-export class RedisStore implements CacheStoreInterface {
+export class RedisStore {
   options: RedisStoreOpt;
   pool: genericPool.Pool<Redis | Cluster>;
   public client: Redis | Cluster;

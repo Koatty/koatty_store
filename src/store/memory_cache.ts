@@ -9,6 +9,7 @@ import { flatten, isNil, isUndefined, union } from "lodash";
 import * as Helper from "koatty_lib";
 import { EventEmitter } from "events";
 import { LRUCache } from "lru-cache";
+import AsyncLock from "async-lock";
 
 export type CallbackFunction<T = any> = (err: Error | null, result?: T) => void;
 
@@ -75,6 +76,7 @@ export class MemoryCache extends EventEmitter {
   private cache: any;
   private responseMessages: any[];
   private ttlCheckTimer: NodeJS.Timeout | null = null;
+  private lock: AsyncLock;
 
   /**
    * Creates an instance of MemoryCache.
@@ -96,6 +98,7 @@ export class MemoryCache extends EventEmitter {
     this.lastSave = Date.now();
     this.multiMode = false;
     this.responseMessages = [];
+    this.lock = new AsyncLock();
     
     // 初始化数据库和缓存
     if (!this.databases.has(this.currentDBIndex)) {
@@ -170,6 +173,16 @@ export class MemoryCache extends EventEmitter {
   }
 
   /**
+   * 清理所有资源
+   * @private
+   */
+  private cleanup(): void {
+    this.stopTTLCheck();
+    this.databases.clear();
+    this.removeAllListeners();
+  }
+
+  /**
    *
    *
    * @returns {*}  
@@ -195,8 +208,8 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   quit() {
+    this.cleanup(); // 调用清理方法
     this.connected = false;
-    this.stopTTLCheck();
     // exit multi mode if we are in it
     this.discard(null, true);
     this.emit('end');
@@ -484,13 +497,17 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   incr(key: string, callback?: CallbackFunction) {
-    let retVal = null;
-    try {
-      retVal = this._addToKey(key, 1);
-    } catch (err) {
-      return this._handleCallback(callback, null, err);
-    }
-    return this._handleCallback(callback, retVal);
+    // 使用锁保护原子操作
+    const lockKey = `incr:${key}`;
+    return this.lock.acquire(lockKey, () => {
+      let retVal = null;
+      try {
+        retVal = this._addToKey(key, 1);
+      } catch (err) {
+        return this._handleCallback(callback, null, err);
+      }
+      return this._handleCallback(callback, retVal);
+    });
   }
 
   /**
@@ -503,13 +520,17 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   incrby(key: string, amount: number, callback?: CallbackFunction) {
-    let retVal = null;
-    try {
-      retVal = this._addToKey(key, amount);
-    } catch (err) {
-      return this._handleCallback(callback, null, err);
-    }
-    return this._handleCallback(callback, retVal);
+    // 使用锁保护原子操作
+    const lockKey = `incrby:${key}`;
+    return this.lock.acquire(lockKey, () => {
+      let retVal = null;
+      try {
+        retVal = this._addToKey(key, amount);
+      } catch (err) {
+        return this._handleCallback(callback, null, err);
+      }
+      return this._handleCallback(callback, retVal);
+    });
   }
 
   /**
@@ -521,13 +542,17 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   decr(key: string, callback?: CallbackFunction) {
-    let retVal = null;
-    try {
-      retVal = this._addToKey(key, -1);
-    } catch (err) {
-      return this._handleCallback(callback, null, err);
-    }
-    return this._handleCallback(callback, retVal);
+    // 使用锁保护原子操作
+    const lockKey = `decr:${key}`;
+    return this.lock.acquire(lockKey, () => {
+      let retVal = null;
+      try {
+        retVal = this._addToKey(key, -1);
+      } catch (err) {
+        return this._handleCallback(callback, null, err);
+      }
+      return this._handleCallback(callback, retVal);
+    });
   }
 
   /**
@@ -540,19 +565,23 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   decrby(key: string, amount: number, callback?: CallbackFunction) {
-    let retVal = null;
-    try {
-      retVal = this._addToKey(key, 0 - amount);
-    } catch (err) {
-      return this._handleCallback(callback, null, err);
-    }
-    return this._handleCallback(callback, retVal);
+    // 使用锁保护原子操作
+    const lockKey = `decrby:${key}`;
+    return this.lock.acquire(lockKey, () => {
+      let retVal = null;
+      try {
+        retVal = this._addToKey(key, 0 - amount);
+      } catch (err) {
+        return this._handleCallback(callback, null, err);
+      }
+      return this._handleCallback(callback, retVal);
+    });
   }
 
   // ---------------------------------------
   // ## Hash ##
   // ---------------------------------------
-  hset(key: string, field: string, value: string | number, callback?: CallbackFunction) {
+  hset(key: string, field: string, value: string | number, timeout?: number, callback?: CallbackFunction) {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
@@ -565,6 +594,16 @@ export class MemoryCache extends EventEmitter {
     }
 
     this._setField(key, field, value.toString());
+    
+    // 如果指定了 timeout，存储字段级别的过期时间
+    if (typeof timeout === 'number') {
+      const hashObj = this.cache.get(key)!.value;
+      if (!hashObj._fieldTTL) {
+        hashObj._fieldTTL = {};
+      }
+      hashObj._fieldTTL[field] = Date.now() + (timeout * 1000);
+    }
+    
     this.persist(key);
 
     return this._handleCallback(callback, retVal);
@@ -583,8 +622,19 @@ export class MemoryCache extends EventEmitter {
     let retVal = null;
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
+      
+      // 检查字段级别的过期时间
+      const hashObj = this._getKey(key);
+      if (hashObj && hashObj._fieldTTL && hashObj._fieldTTL[field]) {
+        if (hashObj._fieldTTL[field] <= Date.now()) {
+          // 过期，删除字段
+          this.hdel(key, field);
+          return this._handleCallback(callback, null);
+        }
+      }
+      
       if (this._hasField(key, field)) {
-        retVal = this._getKey(key)[field];
+        retVal = hashObj[field];
       }
     }
     return this._handleCallback(callback, retVal);
@@ -603,6 +653,17 @@ export class MemoryCache extends EventEmitter {
     let retVal = 0;
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
+      
+      // 检查字段级别的过期时间
+      const hashObj = this._getKey(key);
+      if (hashObj && hashObj._fieldTTL && hashObj._fieldTTL[field]) {
+        if (hashObj._fieldTTL[field] <= Date.now()) {
+          // 过期，删除字段
+          this.hdel(key, field);
+          return this._handleCallback(callback, 0);
+        }
+      }
+      
       if (this._hasField(key, field)) {
         retVal = 1;
       }
@@ -623,10 +684,15 @@ export class MemoryCache extends EventEmitter {
     const callback = this._retrieveCallback(fields);
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
+      const hashObj = this.cache.get(key)!.value;
       for (let itr = 0; itr < fields.length; itr++) {
         const field = fields[itr];
         if (this._hasField(key, field)) {
-          delete this.cache.get(key)!.value[field];
+          delete hashObj[field];
+          // 清理过期时间记录
+          if (hashObj._fieldTTL && hashObj._fieldTTL[field]) {
+            delete hashObj._fieldTTL[field];
+          }
           retVal++;
         }
       }
@@ -658,13 +724,17 @@ export class MemoryCache extends EventEmitter {
    * @memberof MemoryCache
    */
   hincrby(key: string, field: string, value: any, callback?: CallbackFunction) {
-    let retVal;
-    try {
-      retVal = this._addToField(key, field, value, false);
-    } catch (err) {
-      return this._handleCallback(callback, null, err);
-    }
-    return this._handleCallback(callback, retVal);
+    // 使用锁保护原子操作，使用组合 key
+    const lockKey = `hincrby:${key}:${field}`;
+    return this.lock.acquire(lockKey, () => {
+      let retVal;
+      try {
+        retVal = this._addToField(key, field, value, false);
+      } catch (err) {
+        return this._handleCallback(callback, null, err);
+      }
+      return this._handleCallback(callback, retVal);
+    });
   }
 
   /**
@@ -679,7 +749,11 @@ export class MemoryCache extends EventEmitter {
     let retVals = {};
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
-      retVals = this._getKey(key);
+      const hashObj = this._getKey(key);
+      // 排除内部属性 _fieldTTL
+      retVals = Object.entries(hashObj)
+        .filter(([k]) => k !== '_fieldTTL')
+        .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
     }
     return this._handleCallback(callback, retVals);
   }
@@ -696,7 +770,9 @@ export class MemoryCache extends EventEmitter {
     let retVals: any[] = [];
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
-      retVals = Object.keys(this._getKey(key));
+      const hashObj = this._getKey(key);
+      // 排除内部属性 _fieldTTL
+      retVals = Object.keys(hashObj).filter(k => k !== '_fieldTTL');
     }
 
     return this._handleCallback(callback, retVals);
@@ -714,7 +790,11 @@ export class MemoryCache extends EventEmitter {
     let retVals: any[] = [];
     if (this._hasKey(key)) {
       this._testType(key, 'hash', true, callback);
-      retVals = Object.values(this._getKey(key));
+      const hashObj = this._getKey(key);
+      // 排除内部属性 _fieldTTL 的值
+      retVals = Object.entries(hashObj)
+        .filter(([k]) => k !== '_fieldTTL')
+        .map(([, v]) => v);
     }
 
     return this._handleCallback(callback, retVals);
@@ -878,8 +958,7 @@ export class MemoryCache extends EventEmitter {
         stop = length - 1;
       }
       if (stop >= 0 && stop >= start) {
-        const size = stop - start + 1;
-        for (let itr = start; itr < size; itr++) {
+        for (let itr = start; itr <= stop; itr++) {
           retVal.push(list[itr]);
         }
       }
@@ -1322,7 +1401,8 @@ export class MemoryCache extends EventEmitter {
     if (key && field) {
       const ky = this._getKey(key);
       if (ky) {
-        retVal = ky.hasOwnProperty(field);
+        // 排除内部属性 _fieldTTL
+        retVal = field !== '_fieldTTL' && ky.hasOwnProperty(field);
       }
     }
     return retVal;
