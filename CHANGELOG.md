@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.1](https://github.com/koatty/koatty_store/compare/v1.8.0...v1.8.1) (2024-12-XX)
+
+### Bug Fixes
+
+* **memory_cache**: fix lrange method loop logic error that caused incomplete results ([#issue](https://github.com/koatty/koatty_store/issues/xxx))
+* **hash**: fix hash TTL implementation to prevent data inconsistency in concurrent scenarios
+* **memory_store**: simplify connection management design to remove unnecessary pool concept
+
+### Features
+
+* **hash**: implement field-level TTL support for hash operations
+* **concurrency**: add lock protection for atomic operations (incr, decr, incrby, decrby, hincrby)
+* **cleanup**: add comprehensive resource cleanup method to prevent memory leaks
+* **error**: improve error handling with detailed context information
+* **types**: make interface methods required for better type safety
+
+### Performance Improvements
+
+* **hash**: reduce hash TTL operations from 2 queries to 1 query
+* **connection**: remove unnecessary connection pool overhead in MemoryStore
+
+### BREAKING CHANGES
+
+* MemoryStore and RedisStore no longer directly implement CacheStoreInterface (internal change, no API impact)
+* All CacheStoreInterface methods are now required (improves type safety)
+
+### Dependencies
+
+* add `async-lock` for concurrency control
+* add `@types/async-lock` for TypeScript support
+
 ## [1.8.0](https://github.com/koatty/koatty_store/compare/v1.7.0...v1.8.0) (2025-06-09)
 
 
