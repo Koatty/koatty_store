@@ -1,13 +1,13 @@
 {
   "name": "koatty_store",
-  "version": "1.9.2",
+  "version": "1.9.4",
   "description": "Cache store for koatty.",
   "scripts": {
     "build": "npm run build:js && npm run build:dts && npm run build:doc && npm run build:cp",
     "build:cp": "node scripts/postBuild && npx copyfiles package.json LICENSE README.md dist/",
     "build:js": "npx rollup --bundleConfigAsCjs -c .rollup.config.js",
     "build:doc": "npx api-documenter markdown --input temp --output docs/api",
-    "build:dts": "npx tsc && npx api-extractor run --local --verbose",
+    "build:dts": "bash ../../scripts/build-dts.sh",
     "eslint": "eslint --ext .ts,.js ./",
     "prepublishOnly": "npm test && npm run build",
     "prerelease": "npm test && npm run build",
@@ -91,13 +91,13 @@
     "async-lock": "^1.4.1",
     "generic-pool": "^3.9.0",
     "ioredis": "^5.9.2",
-    "koatty_lib": "workspace:*",
-    "koatty_logger": "workspace:*",
+    "koatty_lib": "^1.4.5",
+    "koatty_logger": "^2.3.4",
     "lodash": "^4.17.23",
     "lru-cache": "^11.2.5"
   },
   "peerDependencies": {
-    "koatty_lib": "workspace:*",
-    "koatty_logger": "workspace:*"
+    "koatty_lib": "^1.4.5",
+    "koatty_logger": "^2.3.4"
   }
 }
