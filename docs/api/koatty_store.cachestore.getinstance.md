@@ -14,10 +14,55 @@ static getInstance(options?: StoreOptions, instanceKey?: string): CacheStore;
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  options | [StoreOptions](./koatty_store.storeoptions.md) | _(Optional)_ |
-|  instanceKey | string | _(Optional)_ 实例键名，用于区分不同配置的实例 |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+[StoreOptions](./koatty_store.storeoptions.md)
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+instanceKey
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ 实例键名，用于区分不同配置的实例
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

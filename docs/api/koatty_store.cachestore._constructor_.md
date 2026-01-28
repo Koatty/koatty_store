@@ -14,7 +14,37 @@ constructor(options?: StoreOptions);
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  options | [StoreOptions](./koatty_store.storeoptions.md) | _(Optional)_  CacheStore |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+options
+
+
+</td><td>
+
+[StoreOptions](./koatty_store.storeoptions.md)
+
+
+</td><td>
+
+_(Optional)_  CacheStore
+
+
+</td></tr>
+</tbody></table>
 

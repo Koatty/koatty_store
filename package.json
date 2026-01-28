@@ -1,6 +1,6 @@
 {
   "name": "koatty_store",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Cache store for koatty.",
   "scripts": {
     "build": "npm run build:js && npm run build:dts && npm run build:doc && npm run build:cp",
@@ -12,10 +12,6 @@
     "prepublishOnly": "npm test && npm run build",
     "prerelease": "npm test && npm run build",
     "pub": "git push --follow-tags origin && npm publish",
-    "release": "standard-version",
-    "release:pre": "npm run release -- --prerelease",
-    "release:major": "npm run release -- --release-as major",
-    "release:minor": "npm run release -- --release-as minor",
     "test": "npm run eslint && jest --passWithNoTests"
   },
   "main": "./dist/index.js",
@@ -94,14 +90,14 @@
   "dependencies": {
     "async-lock": "^1.4.1",
     "generic-pool": "^3.9.0",
-    "ioredis": "^5.8.2",
-    "koatty_lib": "^1.x.x",
-    "koatty_logger": "^2.x.x",
-    "lodash": "^4.17.21",
-    "lru-cache": "^11.2.2"
+    "ioredis": "^5.9.2",
+    "koatty_lib": "workspace:*",
+    "koatty_logger": "workspace:*",
+    "lodash": "^4.17.23",
+    "lru-cache": "^11.2.5"
   },
   "peerDependencies": {
-    "koatty_lib": "^1.x.x",
-    "koatty_logger": "^2.x.x"
+    "koatty_lib": "workspace:*",
+    "koatty_logger": "workspace:*"
   }
 }

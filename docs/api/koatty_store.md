@@ -6,13 +6,51 @@
 
 ## Classes
 
-|  Class | Description |
-|  --- | --- |
-|  [CacheStore](./koatty_store.cachestore.md) |   Store |
+<table><thead><tr><th>
+
+Class
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[CacheStore](./koatty_store.cachestore.md)
+
+
+</td><td>
+
+  Store
+
+
+</td></tr>
+</tbody></table>
 
 ## Type Aliases
 
-|  Type Alias | Description |
-|  --- | --- |
-|  [StoreOptions](./koatty_store.storeoptions.md) |  |
+<table><thead><tr><th>
+
+Type Alias
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[StoreOptions](./koatty_store.storeoptions.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

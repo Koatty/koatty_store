@@ -15,59 +15,670 @@ export declare class CacheStore implements CacheStoreInterface
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(options)](./koatty_store.cachestore._constructor_.md) |  | Creates an instance of CacheStore. |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(options)](./koatty_store.cachestore._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Creates an instance of CacheStore.
+
+
+</td></tr>
+</tbody></table>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [client](./koatty_store.cachestore.client.md) |  | MemoryStore \| RedisStore |  |
-|  [options](./koatty_store.cachestore.options.md) |  | [StoreOptions](./koatty_store.storeoptions.md) |  |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[client](./koatty_store.cachestore.client.md)
+
+
+</td><td>
+
+
+</td><td>
+
+MemoryStore \| RedisStore
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[options](./koatty_store.cachestore.options.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[StoreOptions](./koatty_store.storeoptions.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 ## Methods
 
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [clearAllInstances()](./koatty_store.cachestore.clearallinstances.md) | <code>static</code> | 清理所有实例  |
-|  [clearInstance(instanceKey)](./koatty_store.cachestore.clearinstance.md) | <code>static</code> | 清理指定实例  |
-|  [close()](./koatty_store.cachestore.close.md) |  |  |
-|  [decr(name)](./koatty_store.cachestore.decr.md) |  | 自减 |
-|  [decrby(name, decrement)](./koatty_store.cachestore.decrby.md) |  | 将 key 所储存的值减去减量 |
-|  [del(name)](./koatty_store.cachestore.del.md) |  |  |
-|  [exists(name)](./koatty_store.cachestore.exists.md) |  | 判断key是否存在 |
-|  [expire(name, timeout)](./koatty_store.cachestore.expire.md) |  | 设置key超时属性 |
-|  [get(name)](./koatty_store.cachestore.get.md) |  | 字符串获取 |
-|  [getConnection()](./koatty_store.cachestore.getconnection.md) |  |  |
-|  [getInstance(options, instanceKey)](./koatty_store.cachestore.getinstance.md) | <code>static</code> | 获取单例实例，支持多配置实例管理  |
-|  [getRawClient()](./koatty_store.cachestore.getrawclient.md) |  | 获取底层实现客户端，用于访问特定实现的功能 例如：Redis的defineCommand, getCompare等 |
-|  [hdel(name, key)](./koatty_store.cachestore.hdel.md) |  | 哈希删除 |
-|  [hexists(name, key)](./koatty_store.cachestore.hexists.md) |  | 查看哈希表 hashKey 中，给定域 key 是否存在 |
-|  [hget(name, key)](./koatty_store.cachestore.hget.md) |  | 哈希获取 |
-|  [hgetall(name)](./koatty_store.cachestore.hgetall.md) |  | 返回哈希表所有key-value |
-|  [hincrby(name, key, increment)](./koatty_store.cachestore.hincrby.md) |  | 给哈希表指定key，增加increment |
-|  [hkeys(name)](./koatty_store.cachestore.hkeys.md) |  | 返回哈希表所有key |
-|  [hlen(name)](./koatty_store.cachestore.hlen.md) |  | 返回哈希表 key 中域的数量 |
-|  [hset(name, key, value, timeout)](./koatty_store.cachestore.hset.md) |  | 哈希写入 |
-|  [hvals(name)](./koatty_store.cachestore.hvals.md) |  | 返回哈希表所有value |
-|  [incr(name)](./koatty_store.cachestore.incr.md) |  | 自增 |
-|  [incrby(name, increment)](./koatty_store.cachestore.incrby.md) |  | 将 key 所储存的值增加增量 |
-|  [llen(name)](./koatty_store.cachestore.llen.md) |  | 判断列表长度，若不存在则表示为空 |
-|  [lpop(name)](./koatty_store.cachestore.lpop.md) |  | 将列表表头取出，并去除 |
-|  [lpush(name, value)](./koatty_store.cachestore.lpush.md) |  |  |
-|  [lrange(name, start, stop)](./koatty_store.cachestore.lrange.md) |  | 返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定 |
-|  [release(conn)](./koatty_store.cachestore.release.md) |  |  |
-|  [rpop(name)](./koatty_store.cachestore.rpop.md) |  |  |
-|  [rpush(name, value)](./koatty_store.cachestore.rpush.md) |  | 将值插入列表表尾 |
-|  [sadd(name, value, timeout)](./koatty_store.cachestore.sadd.md) |  | 集合新增 |
-|  [scard(name)](./koatty_store.cachestore.scard.md) |  | 返回集合的基数(集合中元素的数量) |
-|  [set(name, value, timeout)](./koatty_store.cachestore.set.md) |  | 字符串写入 |
-|  [sismember(name, key)](./koatty_store.cachestore.sismember.md) |  | 判断 member 元素是否集合的成员 |
-|  [smembers(name)](./koatty_store.cachestore.smembers.md) |  | 返回集合中的所有成员 |
-|  [smove(source, destination, member)](./koatty_store.cachestore.smove.md) |  | 将 member 元素从 source 集合移动到 destination 集合 |
-|  [spop(name)](./koatty_store.cachestore.spop.md) |  | 移除并返回集合中的一个随机元素 |
-|  [srem(name, key)](./koatty_store.cachestore.srem.md) |  | 移除集合 key 中的一个 member 元素 |
-|  [ttl(name)](./koatty_store.cachestore.ttl.md) |  | 以秒为单位，返回给定 key 的剩余生存时间 |
-|  [wrap(name, data)](./koatty_store.cachestore.wrap.md) | <code>protected</code> | handler for native client |
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[clearAllInstances()](./koatty_store.cachestore.clearallinstances.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+清理所有实例 
+
+
+</td></tr>
+<tr><td>
+
+[clearInstance(instanceKey)](./koatty_store.cachestore.clearinstance.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+清理指定实例 
+
+
+</td></tr>
+<tr><td>
+
+[close()](./koatty_store.cachestore.close.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[decr(name)](./koatty_store.cachestore.decr.md)
+
+
+</td><td>
+
+
+</td><td>
+
+自减
+
+
+</td></tr>
+<tr><td>
+
+[decrby(name, decrement)](./koatty_store.cachestore.decrby.md)
+
+
+</td><td>
+
+
+</td><td>
+
+将 key 所储存的值减去减量
+
+
+</td></tr>
+<tr><td>
+
+[del(name)](./koatty_store.cachestore.del.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[exists(name)](./koatty_store.cachestore.exists.md)
+
+
+</td><td>
+
+
+</td><td>
+
+判断key是否存在
+
+
+</td></tr>
+<tr><td>
+
+[expire(name, timeout)](./koatty_store.cachestore.expire.md)
+
+
+</td><td>
+
+
+</td><td>
+
+设置key超时属性
+
+
+</td></tr>
+<tr><td>
+
+[get(name)](./koatty_store.cachestore.get.md)
+
+
+</td><td>
+
+
+</td><td>
+
+字符串获取
+
+
+</td></tr>
+<tr><td>
+
+[getConnection()](./koatty_store.cachestore.getconnection.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[getInstance(options, instanceKey)](./koatty_store.cachestore.getinstance.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+获取单例实例，支持多配置实例管理 
+
+
+</td></tr>
+<tr><td>
+
+[getRawClient()](./koatty_store.cachestore.getrawclient.md)
+
+
+</td><td>
+
+
+</td><td>
+
+获取底层实现客户端，用于访问特定实现的功能 例如：Redis的defineCommand, getCompare等
+
+
+</td></tr>
+<tr><td>
+
+[hdel(name, key)](./koatty_store.cachestore.hdel.md)
+
+
+</td><td>
+
+
+</td><td>
+
+哈希删除
+
+
+</td></tr>
+<tr><td>
+
+[hexists(name, key)](./koatty_store.cachestore.hexists.md)
+
+
+</td><td>
+
+
+</td><td>
+
+查看哈希表 hashKey 中，给定域 key 是否存在
+
+
+</td></tr>
+<tr><td>
+
+[hget(name, key)](./koatty_store.cachestore.hget.md)
+
+
+</td><td>
+
+
+</td><td>
+
+哈希获取
+
+
+</td></tr>
+<tr><td>
+
+[hgetall(name)](./koatty_store.cachestore.hgetall.md)
+
+
+</td><td>
+
+
+</td><td>
+
+返回哈希表所有key-value
+
+
+</td></tr>
+<tr><td>
+
+[hincrby(name, key, increment)](./koatty_store.cachestore.hincrby.md)
+
+
+</td><td>
+
+
+</td><td>
+
+给哈希表指定key，增加increment
+
+
+</td></tr>
+<tr><td>
+
+[hkeys(name)](./koatty_store.cachestore.hkeys.md)
+
+
+</td><td>
+
+
+</td><td>
+
+返回哈希表所有key
+
+
+</td></tr>
+<tr><td>
+
+[hlen(name)](./koatty_store.cachestore.hlen.md)
+
+
+</td><td>
+
+
+</td><td>
+
+返回哈希表 key 中域的数量
+
+
+</td></tr>
+<tr><td>
+
+[hset(name, key, value, timeout)](./koatty_store.cachestore.hset.md)
+
+
+</td><td>
+
+
+</td><td>
+
+哈希写入
+
+
+</td></tr>
+<tr><td>
+
+[hvals(name)](./koatty_store.cachestore.hvals.md)
+
+
+</td><td>
+
+
+</td><td>
+
+返回哈希表所有value
+
+
+</td></tr>
+<tr><td>
+
+[incr(name)](./koatty_store.cachestore.incr.md)
+
+
+</td><td>
+
+
+</td><td>
+
+自增
+
+
+</td></tr>
+<tr><td>
+
+[incrby(name, increment)](./koatty_store.cachestore.incrby.md)
+
+
+</td><td>
+
+
+</td><td>
+
+将 key 所储存的值增加增量
+
+
+</td></tr>
+<tr><td>
+
+[llen(name)](./koatty_store.cachestore.llen.md)
+
+
+</td><td>
+
+
+</td><td>
+
+判断列表长度，若不存在则表示为空
+
+
+</td></tr>
+<tr><td>
+
+[lpop(name)](./koatty_store.cachestore.lpop.md)
+
+
+</td><td>
+
+
+</td><td>
+
+将列表表头取出，并去除
+
+
+</td></tr>
+<tr><td>
+
+[lpush(name, value)](./koatty_store.cachestore.lpush.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[lrange(name, start, stop)](./koatty_store.cachestore.lrange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+返回列表 key 中指定区间内的元素，区间以偏移量 start 和 stop 指定
+
+
+</td></tr>
+<tr><td>
+
+[release(conn)](./koatty_store.cachestore.release.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[rpop(name)](./koatty_store.cachestore.rpop.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[rpush(name, value)](./koatty_store.cachestore.rpush.md)
+
+
+</td><td>
+
+
+</td><td>
+
+将值插入列表表尾
+
+
+</td></tr>
+<tr><td>
+
+[sadd(name, value, timeout)](./koatty_store.cachestore.sadd.md)
+
+
+</td><td>
+
+
+</td><td>
+
+集合新增
+
+
+</td></tr>
+<tr><td>
+
+[scard(name)](./koatty_store.cachestore.scard.md)
+
+
+</td><td>
+
+
+</td><td>
+
+返回集合的基数(集合中元素的数量)
+
+
+</td></tr>
+<tr><td>
+
+[set(name, value, timeout)](./koatty_store.cachestore.set.md)
+
+
+</td><td>
+
+
+</td><td>
+
+字符串写入
+
+
+</td></tr>
+<tr><td>
+
+[sismember(name, key)](./koatty_store.cachestore.sismember.md)
+
+
+</td><td>
+
+
+</td><td>
+
+判断 member 元素是否集合的成员
+
+
+</td></tr>
+<tr><td>
+
+[smembers(name)](./koatty_store.cachestore.smembers.md)
+
+
+</td><td>
+
+
+</td><td>
+
+返回集合中的所有成员
+
+
+</td></tr>
+<tr><td>
+
+[smove(source, destination, member)](./koatty_store.cachestore.smove.md)
+
+
+</td><td>
+
+
+</td><td>
+
+将 member 元素从 source 集合移动到 destination 集合
+
+
+</td></tr>
+<tr><td>
+
+[spop(name)](./koatty_store.cachestore.spop.md)
+
+
+</td><td>
+
+
+</td><td>
+
+移除并返回集合中的一个随机元素
+
+
+</td></tr>
+<tr><td>
+
+[srem(name, key)](./koatty_store.cachestore.srem.md)
+
+
+</td><td>
+
+
+</td><td>
+
+移除集合 key 中的一个 member 元素
+
+
+</td></tr>
+<tr><td>
+
+[ttl(name)](./koatty_store.cachestore.ttl.md)
+
+
+</td><td>
+
+
+</td><td>
+
+以秒为单位，返回给定 key 的剩余生存时间
+
+
+</td></tr>
+<tr><td>
+
+[wrap(name, data)](./koatty_store.cachestore.wrap.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+handler for native client
+
+
+</td></tr>
+</tbody></table>
 
