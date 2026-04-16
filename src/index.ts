@@ -500,4 +500,40 @@ export class CacheStore implements CacheStoreInterface {
     return this.wrap('smove', [`${this.options.keyPrefix || ""}${source}`, `${this.options.keyPrefix || ""}${destination}`, member]);
   }
 
+  /**
+   * Begin a transaction
+   * Note: Only supported by RedisStore, will throw error for MemoryStore
+   * @returns {Promise<void>}
+   */
+  async beginTransaction(): Promise<void> {
+    if (this.client && typeof (this.client as any).beginTransaction === 'function') {
+      return (this.client as any).beginTransaction();
+    }
+    throw new Error('Transactions are not supported by the current store type.');
+  }
+
+  /**
+   * Commit a transaction
+   * Note: Only supported by RedisStore, will throw error for MemoryStore
+   * @returns {Promise<void>}
+   */
+  async commit(): Promise<void> {
+    if (this.client && typeof (this.client as any).commit === 'function') {
+      return (this.client as any).commit();
+    }
+    throw new Error('Transactions are not supported by the current store type.');
+  }
+
+  /**
+   * Rollback a transaction
+   * Note: Only supported by RedisStore, will throw error for MemoryStore
+   * @returns {Promise<void>}
+   */
+  async rollback(): Promise<void> {
+    if (this.client && typeof (this.client as any).rollback === 'function') {
+      return (this.client as any).rollback();
+    }
+    throw new Error('Transactions are not supported by the current store type.');
+  }
+
 }

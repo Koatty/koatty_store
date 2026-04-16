@@ -125,4 +125,28 @@ export class MemoryStore {
       misses: 0
     };
   }
+
+  /**
+   * Begin a transaction (not supported by MemoryStore)
+   * @throws {Error} Transactions are not supported by MemoryStore
+   */
+  async beginTransaction(): Promise<void> {
+    throw new Error('Transactions are not supported by MemoryStore. Use RedisStore for transaction support.');
+  }
+
+  /**
+   * Commit a transaction (not supported by MemoryStore)
+   * @throws {Error} Transactions are not supported by MemoryStore
+   */
+  async commit(): Promise<void> {
+    throw new Error('Transactions are not supported by MemoryStore. Use RedisStore for transaction support.');
+  }
+
+  /**
+   * Rollback a transaction (not supported by MemoryStore)
+   * @throws {Error} Transactions are not supported by MemoryStore
+   */
+  async rollback(): Promise<void> {
+    throw new Error('Transactions are not supported by MemoryStore. Use RedisStore for transaction support.');
+  }
 }
