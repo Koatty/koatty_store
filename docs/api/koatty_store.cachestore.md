@@ -126,6 +126,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[beginTransaction()](./koatty_store.cachestore.begintransaction.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Begin a transaction Note: Only supported by RedisStore, will throw error for MemoryStore
+
+
+</td></tr>
+<tr><td>
+
 [clearAllInstances()](./koatty_store.cachestore.clearallinstances.md)
 
 
@@ -165,6 +179,20 @@ Description
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+[commit()](./koatty_store.cachestore.commit.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Commit a transaction Note: Only supported by RedisStore, will throw error for MemoryStore
 
 
 </td></tr>
@@ -509,6 +537,20 @@ Description
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+[rollback()](./koatty_store.cachestore.rollback.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Rollback a transaction Note: Only supported by RedisStore, will throw error for MemoryStore
 
 
 </td></tr>
