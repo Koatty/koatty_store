@@ -157,7 +157,7 @@ export class CacheStore implements CacheStoreInterface {
   protected async wrap(name: string, data: any[]) {
     let conn: any;
     try {
-      conn = await this.getConnection();
+      conn = this.client instanceof RedisStore ? await this.client.getSharedConnection() : await this.getConnection();
       const res = await conn[name](...data);
       return res;
     } catch (err) {
@@ -505,35 +505,18 @@ export class CacheStore implements CacheStoreInterface {
    * Note: Only supported by RedisStore, will throw error for MemoryStore
    * @returns {Promise<void>}
    */
-  async beginTransaction(): Promise<void> {
-    if (this.client && typeof (this.client as any).beginTransaction === 'function') {
-      return (this.client as any).beginTransaction();
-    }
+  async beginTransaction(watchKeys: string[] = []) {
+    if (this.client instanceof RedisStore) return this.client.beginTransaction(watchKeys);
     throw new Error('Transactions are not supported by the current store type.');
   }
 
-  /**
-   * Commit a transaction
-   * Note: Only supported by RedisStore, will throw error for MemoryStore
-   * @returns {Promise<void>}
-   */
-  async commit(): Promise<void> {
-    if (this.client && typeof (this.client as any).commit === 'function') {
-      return (this.client as any).commit();
-    }
-    throw new Error('Transactions are not supported by the current store type.');
+  async commit(transaction?: { commit: () => Promise<unknown> }): Promise<unknown> {
+    if (!transaction) throw new Error('Transactions require the handle returned by beginTransaction');
+    return transaction.commit();
   }
 
-  /**
-   * Rollback a transaction
-   * Note: Only supported by RedisStore, will throw error for MemoryStore
-   * @returns {Promise<void>}
-   */
-  async rollback(): Promise<void> {
-    if (this.client && typeof (this.client as any).rollback === 'function') {
-      return (this.client as any).rollback();
-    }
-    throw new Error('Transactions are not supported by the current store type.');
+  async rollback(transaction?: { rollback: () => Promise<unknown> }): Promise<unknown> {
+    if (!transaction) throw new Error('Transactions require the handle returned by beginTransaction');
+    return transaction.rollback();
   }
-
 }

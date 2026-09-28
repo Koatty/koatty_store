@@ -9,11 +9,53 @@ Begin a transaction Note: Only supported by RedisStore, will throw error for Mem
 **Signature:**
 
 ```typescript
-beginTransaction(): Promise<void>;
+beginTransaction(watchKeys?: string[]): Promise<{
+        connection: import("ioredis").default | import("ioredis").Cluster;
+        commands: import("ioredis").ChainableCommander;
+        commit: () => Promise<[error: Error, result: unknown][]>;
+        rollback: () => Promise<[error: Error, result: unknown][]>;
+    }>;
 ```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+watchKeys
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
+
 **Returns:**
 
-Promise&lt;void&gt;
+Promise&lt;{ connection: import("ioredis").default \| import("ioredis").Cluster; commands: import("ioredis").ChainableCommander; commit: () =&gt; Promise&lt;\[error: Error, result: unknown\]\[\]&gt;; rollback: () =&gt; Promise&lt;\[error: Error, result: unknown\]\[\]&gt;; }&gt;
 
 {<!-- -->Promise<void>}
 

@@ -4,16 +4,51 @@
 
 ## CacheStore.commit() method
 
-Commit a transaction Note: Only supported by RedisStore, will throw error for MemoryStore
-
 **Signature:**
 
 ```typescript
-commit(): Promise<void>;
+commit(transaction?: {
+        commit: () => Promise<unknown>;
+    }): Promise<unknown>;
 ```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+transaction
+
+
+</td><td>
+
+{ commit: () =&gt; Promise&lt;unknown&gt;; }
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
+
 **Returns:**
 
-Promise&lt;void&gt;
-
-{<!-- -->Promise<void>}
+Promise&lt;unknown&gt;
 

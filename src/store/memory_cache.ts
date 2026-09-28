@@ -140,6 +140,7 @@ export class MemoryCache extends EventEmitter {
     this.ttlCheckTimer = setInterval(() => {
       this.cleanExpiredKeys();
     }, this.options.ttlCheckInterval || 60000);
+    this.ttlCheckTimer.unref?.();
   }
 
   /**

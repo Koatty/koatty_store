@@ -126,7 +126,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[beginTransaction()](./koatty_store.cachestore.begintransaction.md)
+[beginTransaction(watchKeys)](./koatty_store.cachestore.begintransaction.md)
 
 
 </td><td>
@@ -184,15 +184,13 @@ Begin a transaction Note: Only supported by RedisStore, will throw error for Mem
 </td></tr>
 <tr><td>
 
-[commit()](./koatty_store.cachestore.commit.md)
+[commit(transaction)](./koatty_store.cachestore.commit.md)
 
 
 </td><td>
 
 
 </td><td>
-
-Commit a transaction Note: Only supported by RedisStore, will throw error for MemoryStore
 
 
 </td></tr>
@@ -542,15 +540,13 @@ Commit a transaction Note: Only supported by RedisStore, will throw error for Me
 </td></tr>
 <tr><td>
 
-[rollback()](./koatty_store.cachestore.rollback.md)
+[rollback(transaction)](./koatty_store.cachestore.rollback.md)
 
 
 </td><td>
 
 
 </td><td>
-
-Rollback a transaction Note: Only supported by RedisStore, will throw error for MemoryStore
 
 
 </td></tr>

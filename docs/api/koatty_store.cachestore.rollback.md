@@ -4,16 +4,51 @@
 
 ## CacheStore.rollback() method
 
-Rollback a transaction Note: Only supported by RedisStore, will throw error for MemoryStore
-
 **Signature:**
 
 ```typescript
-rollback(): Promise<void>;
+rollback(transaction?: {
+        rollback: () => Promise<unknown>;
+    }): Promise<unknown>;
 ```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+transaction
+
+
+</td><td>
+
+{ rollback: () =&gt; Promise&lt;unknown&gt;; }
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
+
 **Returns:**
 
-Promise&lt;void&gt;
-
-{<!-- -->Promise<void>}
+Promise&lt;unknown&gt;
 

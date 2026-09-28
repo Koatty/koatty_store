@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (Phase A–D remediation)
+
+- 内存缓存 TTL 清理定时器不再单独阻止 Node 进程退出；独立进程回归验证自然退出，保留 quit/end 清理行为。
+- 迁移：`docs/migration/phase-d-router-hotpath.md`。
+
 ## 4.0.0
 
 ### Patch Changes

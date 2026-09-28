@@ -75,7 +75,6 @@
   },
   "dependencies": {
     "async-lock": "^1.4.1",
-    "generic-pool": "^3.9.0",
     "ioredis": "^5.9.2",
     "koatty_lib": "workspace:*",
     "koatty_logger": "workspace:*",
