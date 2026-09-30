@@ -1,6 +1,6 @@
 {
   "name": "koatty_store",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Cache store for koatty.",
   "scripts": {
     "build": "pnpm run build:js && pnpm run build:dts && pnpm run build:doc && pnpm run build:cp",
@@ -82,8 +82,8 @@
     "lru-cache": "^11.2.5"
   },
   "peerDependencies": {
-    "koatty_lib": "^1.6.0",
-    "koatty_logger": "^3.1.0"
+    "koatty_lib": "^1.6.1",
+    "koatty_logger": "^3.1.2"
   },
   "types": "./dist/index.d.ts"
 }
