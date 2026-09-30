@@ -8,6 +8,8 @@ Cache store (memory or redis) for Koatty framework.
 ## Features
 
 - 🚀 **Dual Storage**: Support both in-memory and Redis storage
+- 🛡️ **Isolated Redis Transactions (4.1)**: transactions return an explicit isolated handle; native connections must be released by the caller — no shared-connection leakage across tenants
+- 🧬 **5.x Family Compatible**: peers aligned with the koatty 5.0.0 release family
 - 💾 **LRU Cache**: Built-in LRU cache with configurable size
 - ⏰ **TTL Support**: Field-level TTL for hash operations
 - 🔒 **Concurrency Safe**: Atomic operations with lock protection
